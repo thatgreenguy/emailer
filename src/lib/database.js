@@ -1,25 +1,43 @@
-// Test Oracle connection
-const config = require('dotenv').config()
 const oracledb = require('oracledb')
 
+const config = require('./config')
+
 const credentials = {
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  connectString: process.env.DB_CONNECTSTRING
+  user: config.db.user,
+  password: config.db.password,
+  connectString: config.db.connectString
 }
 
-oracledb.getConnection(credentials, function(err, cn) {
-  if (err) {
-    console.log('Nah Error : ' + JSON.stringify(err))
-    throw new Error('DB Connection failed' + err)
-  }
-  console.log('We have a connection : ' + JSON.stringify(cn))
-  cn.release(function(err) {
-    if (err) {
-      console.log('Error releasing connection')
-      process.exit(1)
-    }
-    console.log('Connection released' + JSON.stringify(cn))
-  })
-})
 
+const database = {}
+
+database.checkQueue = function() {
+
+  return new Promise(async function(resolve, reject) {
+
+    let dbConnection
+
+    try {
+
+      dbConnection = await oracledb.getConnection( credentials )
+      resolve( {} )
+      
+    } catch ( err ) {
+
+      reject( err )
+
+    } finally {
+
+      if ( dbConnection ) {
+
+        try {
+          await dbConnection.close()
+        } catch ( err ) {
+          console.log('ERROR: Connection close failed', err)
+        }
+      }
+    }
+  }) 
+}
+
+module.exports = database
