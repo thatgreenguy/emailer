@@ -1,0 +1,15 @@
+{
+  "name": "emailer",
+  "version": "1.0.0",
+  "description": "Configuration driven emailer with pluggable template values",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "thatgreenguy",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^6.2.0",
+    "oracledb": "^3.0.1"
+  }
+}
