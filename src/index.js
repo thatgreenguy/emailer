@@ -1,25 +1,12 @@
-// Test Oracle connection
-const config = require('dotenv').config()
-const oracledb = require('oracledb')
+// Emailer - Configuration driven email with template substitution
+//
+// Email template data can be found in an Oracle database used by JDE along
+// with transactional email requirements.
+//
+// Poll periodically and check for any email requirements, if found process each email 
+// request, pulling email template, and pluggable token values from JDE database. 
+// Once confirmed sent update JDE DB transaction file as processed or log error.
 
-const credentials = {
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  connectString: process.env.DB_CONNECTSTRING
-}
+const config = require('./lib/config')
 
-oracledb.getConnection(credentials, function(err, cn) {
-  if (err) {
-    console.log('Nah Error : ' + JSON.stringify(err))
-    throw new Error('DB Connection failed' + err)
-  }
-  console.log('We have a connection : ' + JSON.stringify(cn))
-  cn.release(function(err) {
-    if (err) {
-      console.log('Error releasing connection')
-      process.exit(1)
-    }
-    console.log('Connection released' + JSON.stringify(cn))
-  })
-})
-
+console.log('Config: ', config)
