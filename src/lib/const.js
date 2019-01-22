@@ -3,7 +3,8 @@ const ERROR_TEXT = `ERROR: `
 CONST = {
   JDE: {
     MAIL_CONFIG: {
-      DEFAULT_VERSION: '*ALL'
+      DEFAULT_VERSION: '*ALL',
+      TOKEN: 'TOKEN'
     }
   },
   MESSAGES: {

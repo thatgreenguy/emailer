@@ -30,10 +30,10 @@ async function processQueue( queued ) {
     let language = queuedMail[5]
     let email 
   
-    email = await formulate.prepareEmail( template, recipient, language )
+    email = await formulate.prepareEmail( id, template, recipient, language )
 
     log.info( `Process queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language}`)
-    log.verbose( email )
+    log.verbose( `Email: ${JSON.stringify(email)} `)
 
   }
   

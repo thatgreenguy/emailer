@@ -77,4 +77,68 @@ database.readEmailConfiguration = function(defaultVersion, templateVersion) {
   }) 
 }
 
+database.readEmailTokens = function(id) {
+
+  return new Promise(async function(resolve, reject) {
+
+    let dbConnection
+
+    try {
+      let sql = `select * from ${config.db.schema}.F55NB911 where F55NB911.EDUKID = ${id} and F55NB911.ED55NBEDT = '${CONST.JDE.MAIL_CONFIG.TOKEN}' `
+      let binds = []
+      let options = {}
+
+      dbConnection = await oracledb.getConnection( credentials )
+      let result = await dbConnection.execute( sql, binds, options )
+
+      resolve( {result} )
+      
+    } catch ( err ) {
+      reject( err )
+
+    } finally {
+      if ( dbConnection ) {
+        try {
+          await dbConnection.close()
+
+        } catch ( err ) {
+          log.error(`CONST.MESSAGES.ERROR.CONNECTION_CLOSE_FAILED $(err)`)
+        }
+      }
+    }
+  }) 
+}
+
+database.readEmailAdditionalData = function(id) {
+
+  return new Promise(async function(resolve, reject) {
+
+    let dbConnection
+
+    try {
+      let sql = `select * from ${config.db.schema}.F55NB911 where F55NB911.EDUKID = ${id} and F55NB911.ED55NBEDT != '${CONST.JDE.MAIL_CONFIG.TOKEN}' ORDER BY ED55NBEDT, EDLINENUM`
+      let binds = []
+      let options = {}
+
+      dbConnection = await oracledb.getConnection( credentials )
+      let result = await dbConnection.execute( sql, binds, options )
+
+      resolve( {result} )
+      
+    } catch ( err ) {
+      reject( err )
+
+    } finally {
+      if ( dbConnection ) {
+        try {
+          await dbConnection.close()
+
+        } catch ( err ) {
+          log.error(`CONST.MESSAGES.ERROR.CONNECTION_CLOSE_FAILED $(err)`)
+        }
+      }
+    }
+  }) 
+}
+
 module.exports = database
