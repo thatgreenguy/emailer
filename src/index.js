@@ -1,7 +1,7 @@
 const config = require('./lib/config')
 const moment = require('moment')
 const database = require('./lib/database')
-const formulate = require('./lib/formulate')
+const compose = require('./lib/compose')
 const log = require('./lib/log')
 
 let check = 0
@@ -30,7 +30,7 @@ async function processQueue( queued ) {
     let language = queuedMail[5]
     let email 
   
-    email = await formulate.prepareEmail( id, template, recipient, language )
+    email = await compose.email( id, template, recipient, language )
 
     log.info( `Process queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language}`)
     log.verbose( `Email: ${JSON.stringify(email)} `)

@@ -50,9 +50,10 @@ database.readEmailConfiguration = function(defaultVersion, templateVersion) {
     let dbConnection
 
     try {
-      let sql = `select * from ${config.db.schema}.F559890 
+      let sql = `select CRPGM, CRVERNM, CRCFGSID, CRBLKK, CRSEQ, CRTASKMISC from ${config.db.schema}.F559890 
         where F559890.CRPGM = '${config.app.name}' and 
-        F559890.CRVERNM in ( '${defaultVersion}', '${templateVersion}' )`
+        F559890.CRVERNM in ( '${defaultVersion}', '${templateVersion}' )
+        order by crvernm, crcfgsid, crblkk, crseq `
       let binds = []
       let options = {}
 
