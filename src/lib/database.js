@@ -43,6 +43,52 @@ database.checkQueue = function() {
   }) 
 }
 
+database.updateQueue = function( id, processedFlag, errorMessage ) {
+
+  return new Promise(async function(resolve, reject) {
+
+    let dbConnection
+
+    try {
+
+//      let sql = `update ${config.db.schema}.F55NB901 set F55NB901.ECEDSP = '${processedFlag}', 
+//        F55NB901.ECUKEMES = '${errorMessage}', F55NB901.ECDTSE = 119024, F55NB901.ECY55TDA2 = 135003 
+//        where F55NB901.ECUKID = ${id} and F55NB901.EC55NBES = 'R' and F55NB901.ECEDSP <> 'Y'`
+
+      let sql = `update ${config.db.schema}.F55NB901 set F55NB901.ECEDSP = '${processedFlag}'
+        where F55NB901.ECUKID = '${id}' and F55NB901.EC55NBES = 'R' and F55NB901.ECEDSP <> 'Y'`
+
+      let binds = []
+      let options = { autoCommit: true }
+
+log.warn(sql)
+
+      dbConnection = await oracledb.getConnection( credentials )
+
+log.warn('connection: ')
+
+      let result = await dbConnection.execute( sql, binds, options )
+
+log.warn(`${JSON.stringify(result)}`)
+
+      resolve( {result} )
+      
+    } catch ( err ) {
+      reject( err )
+
+    } finally {
+      if ( dbConnection ) {
+        try {
+          await dbConnection.close()
+
+        } catch ( err ) {
+          log.error(`CONST.MESSAGES.ERROR.CONNECTION_UPDATE_FAILED $(err)`)
+        }
+      }
+    }
+  }) 
+}
+
 database.readEmailConfiguration = function(defaultVersion, templateVersion) {
 
   return new Promise(async function(resolve, reject) {

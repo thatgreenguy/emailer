@@ -4,7 +4,9 @@ CONST = {
   JDE: {
     MAIL_CONFIG: {
       DEFAULT_VERSION: '*ALL',
-      TOKEN: 'TOKEN'
+      TOKEN: 'TOKEN',
+      TOKEN_ID_LEAD: '[{',
+      TOKEN_ID_TRAIL: '}]'
     },
     MAIL_STRUCTURE: {
       FROM: 'EMAIL_FROM',

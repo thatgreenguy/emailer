@@ -2,6 +2,7 @@ const CONST = require('./const')
 const config = require('./config')
 const log = require('./log')
 const database = require('./database')
+const systemtokens = require('./systemtokens')
 
 const compose = {}
 
@@ -62,13 +63,13 @@ compose.email = function(id, template, recipient, language) {
 
         let result = {}
         let tokenName = entry[3].trim()
-        let tokenValue = entry[4]
+        let tokenValue = entry[4].trim()
         result[tokenName] = tokenValue
 
         return result
       })
       
-      log.debug(`Tokens :: ${JSON.stringify(tokenised)}`)
+      log.debug(`Tokens :: ${JSON.stringify(tokenised, null, '\t')}`)
 
       return tokenised
 
@@ -129,7 +130,7 @@ compose.email = function(id, template, recipient, language) {
         // Priority 1 : Configuration matching the Template and Language code 
         // Priority 2 : Configuration matching the Template  
         // Priority 3 : Configuration matching the Default *ALL and Language code 
-        // Priority 4 : Configuration matching the Default
+        // Priority 4 : Configuration matching the Default *ALL
  
         let priorityConfig
 
@@ -140,18 +141,18 @@ compose.email = function(id, template, recipient, language) {
           // Exit as soon some configuration is found at one of the priority levels.
           if ( priorityConfig.length !== 0  ) {
             log.debug(`Configuration found at Priority: ${priority} for : ${mailConstituent}`)
-            log.debug(`${priorityConfig}`)
+            log.debug(`${JSON.stringify(priorityConfig, null, '\t')}`)
             break
           }
         }
 
-        // At this point we have the correct configuration for the current mail constituent part 
-        // according to the required email template and language so compose the response
+        // Collate the correct configuration entries for each mail constituent
+
         prioritisedEmailConfiguration[mailConstituent] = priorityConfig
 
       }
 
-      log.debug(`PrioritisedConfiguration ::: ${JSON.stringify(prioritisedEmailConfiguration)}`)
+      log.debug(`PrioritisedConfiguration ::: ${JSON.stringify(prioritisedEmailConfiguration, null, '\t')}`)
 
       return prioritisedEmailConfiguration
 
@@ -162,38 +163,62 @@ compose.email = function(id, template, recipient, language) {
       let email = {} 
       let tmp = []
 
-      // from
-      tmp = emailConfiguration[CONST.JDE.MAIL_STRUCTURE.FROM]
-      if ( tmp.length !== 0 ) {
-        email.from = tmp[0][5]
-      } else {
-        email.from = ''
+      function _extractConfigData( constituentType, joinType ) {
+
+        let extractedData = []
+
+        extractedData = emailConfiguration[constituentType].map(el => { return el.slice(5)  } )                
+        return extractedData.join( joinType )
       }
-       
-      // To
-      email.to = recipient
 
-      // cc
-      email.cc = ''
+      function _regexify( token ) {
 
-      // bcc 
-      email.bcc = ''
+        token = token.replace( CONST.JDE.MAIL_CONFIG.TOKEN_ID_LEAD, ' ' )
+        token = token.replace( CONST.JDE.MAIL_CONFIG.TOKEN_ID_TRAIL, ' ' ).trim()
 
-      // Subject - Grab the subject data text from the correct column, if multiple entries concatenate all the text
-      tmp = emailConfiguration[CONST.JDE.MAIL_STRUCTURE.SUBJECT].map(el => { return el.slice(5)  } )      
-      email.subject = tmp.join('')
+        return new RegExp( `\\${CONST.JDE.MAIL_CONFIG.TOKEN_ID_LEAD}${token}${CONST.JDE.MAIL_CONFIG.TOKEN_ID_TRAIL}`, 'gi'  )
 
-      // Body - grab the body text content from the correct column, concate all entries
-      tmp = emailConfiguration[CONST.JDE.MAIL_STRUCTURE.BODY_HEAD].map(el => { return el.slice(5)} )
-      email.html = tmp.join('')
-      tmp = emailConfiguration[CONST.JDE.MAIL_STRUCTURE.BODY_BODY].map(el => { return el.slice(5)} )
-      email.html += tmp.join('') 
-      tmp = emailConfiguration[CONST.JDE.MAIL_STRUCTURE.BODY_FOOT].map(el => { return el.slice(5)} )
-      email.html += tmp.join('')
-      tmp = emailConfiguration[CONST.JDE.MAIL_STRUCTURE.BODY_LEGAL].map(el => { return el.slice(5)} )
-      email.html += tmp.join('')
-      
-      log.verbose(`Email: ${JSON.stringify(email)}`)
+      }
+
+      function _deTokenise( text, emailTokens ) {
+
+        let tokens = emailTokens.map( function( el, index ) {
+
+          let token = Object.keys(el)[0]
+          let value = Object.values(el)[0]
+
+          log.debug(`Token: ${token} and value: ${value}`)
+
+          token = _regexify( token )
+          text = text.replace( token, value )
+
+        })
+
+        return text
+      }
+
+
+      // Assemble the mail constituents into a full Email object for nodemailer
+
+      email.from = _extractConfigData( CONST.JDE.MAIL_STRUCTURE.FROM, ', ' )       
+      email.to = _extractConfigData( CONST.JDE.MAIL_STRUCTURE.TO, ', ' )
+      email.to = recipient + ', ' + email.to
+      email.cc =  _extractConfigData( CONST.JDE.MAIL_STRUCTURE.CC, ', ')
+      email.bcc =  _extractConfigData( CONST.JDE.MAIL_STRUCTURE.BCC, ', ')
+      email.subject = _extractConfigData( CONST.JDE.MAIL_STRUCTURE.SUBJECT , '')
+      email.html = _extractConfigData( CONST.JDE.MAIL_STRUCTURE.BODY_HEAD, '')
+      email.html += _extractConfigData( CONST.JDE.MAIL_STRUCTURE.BODY_BODY, '')
+      email.html += _extractConfigData( CONST.JDE.MAIL_STRUCTURE.BODY_FOOT, '')
+      email.html += _extractConfigData( CONST.JDE.MAIL_STRUCTURE.BODY_LEGAL, '')
+
+      // Scan and replace any Tokens embedded in Email Subject and/or Body with data values
+
+      emailTokens = systemtokens.add( emailTokens ) 
+
+      email.subject = _deTokenise( email.subject, emailTokens )
+      email.html = _deTokenise( email.html, emailTokens )
+
+      log.verbose(`Email: ${JSON.stringify(email, null, '\t')}`)
 
       return email
     }
