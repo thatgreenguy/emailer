@@ -11,7 +11,14 @@ const credentials = {
 
 const database = {}
 
-database.checkQueue = function() {
+// TESTING only...
+// Create a delay function to give Mihai chance to see connections ....
+const _artificialDelay = ( duration  ) => {
+  return new Promise(resolve => setTimeout(resolve, duration))
+}
+
+
+database.checkQueue =  function() {
 
   return new Promise(async function(resolve, reject) {
 
@@ -25,14 +32,24 @@ database.checkQueue = function() {
       dbConnection = await oracledb.getConnection( credentials )
       let result = await dbConnection.execute( sql, binds, options )
 
+
+// TESTING only
+// Add some delay code here to give Mihai a chance to see whats happening
+//
+          log.info(`Artificial Delay starting - you have 60 seconds`)
+          await _artificialDelay(60000)
+          log.info(`Artificial Delay over - continue with close connection`)
+
       resolve( {result} )
       
     } catch ( err ) {
       reject( err )
 
     } finally {
+
       if ( dbConnection ) {
         try {
+
           await dbConnection.close()
 
         } catch ( err ) {
@@ -55,8 +72,7 @@ database.updateQueue = function( id, processedFlag, errorMessage ) {
 //        F55NB901.ECUKEMES = '${errorMessage}', F55NB901.ECDTSE = 119024, F55NB901.ECY55TDA2 = 135003 
 //        where F55NB901.ECUKID = ${id} and F55NB901.EC55NBES = 'R' and F55NB901.ECEDSP <> 'Y'`
 
-      let sql = `update ${config.db.schema}.F55NB901 set F55NB901.ECEDSP = '${processedFlag}'
-        where F55NB901.ECUKID = '${id}' and F55NB901.EC55NBES = 'R' and F55NB901.ECEDSP <> 'Y'`
+      let sql = `update CRPDTA.F55NB901 set ECEDSP = 'Y'`
 
       let binds = []
       let options = { autoCommit: true }
@@ -65,7 +81,7 @@ log.warn(sql)
 
       dbConnection = await oracledb.getConnection( credentials )
 
-log.warn('connection: ')
+log.warn(`connection: ${JSON.stringify(dbConnection)}`)
 
       let result = await dbConnection.execute( sql, binds, options )
 
@@ -74,9 +90,11 @@ log.warn(`${JSON.stringify(result)}`)
       resolve( {result} )
       
     } catch ( err ) {
+log.warn(`${JSON.stringify(err)}`)
       reject( err )
 
     } finally {
+log.warn(`${JSON.stringify(dbConnection)}`)
       if ( dbConnection ) {
         try {
           await dbConnection.close()
