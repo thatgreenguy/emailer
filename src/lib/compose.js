@@ -216,6 +216,8 @@ compose.email = function(id, template, recipient, language) {
       email.subject = _deTokenise( email.subject, emailTokens )
       email.html = _deTokenise( email.html, emailTokens )
 
+      log.verbose(`Composed Email : ${JSON.stringify(email, null, '\t')}`)
+
       return email
     }
 

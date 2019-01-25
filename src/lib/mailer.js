@@ -25,16 +25,20 @@ mailer.send = function (email) {
 
       sendResponse = await transport.sendMail(email)
 
-      // Pluck the most useful information from the response to return as success message
-      // consisting of response + messagId
+      // The message ID is the main thing we wantt to capture and store as success message
+      // after that append the rest of the gmail response string space permitting
 
-      log.debug(`Send mail OK: ${JSON.stringify(sendResponse, null, '\t')}`)
-      result = sendResponse.response + sendResponse.messageId
+      result = sendResponse.messageId + ' ' + sendResponse.response.substring(0, 99 - sendResponse.messageId.length)
+
+      log.verbose(`Send mail OK: ${result}`)
+      log.verbose(`Send mail OK: ${JSON.stringify(sendResponse, null, '\t')}`)
 
       resolve(result)
 
     } catch ( err )  {
-      log.debug(`Send mail ERROR: ${JSON.stringify(err, null, '\t')}`)
+
+      log.debug(`Send mail Failed: ${JSON.stringify(err, null, '\t')}`)
+
       reject(err)
 
     } finally {

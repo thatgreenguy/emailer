@@ -21,7 +21,7 @@ async function checkQueue() {
   queued = result.result.rows  
   if ( queued.length ) processQueue( queued )  
 
-  log.debug(`Check ${check++} complete, found ${queued.length}`)  
+  log.verbose(`Emailer Queue check complete, found ${queued.length}`)  
 
 }
 
@@ -36,21 +36,25 @@ async function processQueue( queued ) {
     let email 
     let sendResponse
 
-    log.info( `Processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language}`)
+    try {
+
+    log.info( `Start processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language}`)
   
     email = await compose.email( id, template, recipient, language )
-
-    log.verbose( `Sending email : ${JSON.stringify(email, null, '\t')}`)
-
     sendResponse = await mailer.send( email )
+    await database.updateQueue( id, PROCESSED, sendResponse )
 
-    log.debug(`Send Results: ${JSON.stringify(sendResponse, null, '\t')}`)
+    log.info( `Finished processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language}`)
 
-    processedFlag = PROCESS_ERROR
-    processedFlag = PROCESSED
+    } catch(err) {
 
-    await database.updateQueue( id, processedFlag, sendResponse )
+      log.error(`Queued mail processing for item: ${id} failed with details: ${err}`)
 
+    } finally {
+
+      // noop
+
+    }
   }  
 }
 
