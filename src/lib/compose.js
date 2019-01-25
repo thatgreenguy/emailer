@@ -69,8 +69,6 @@ compose.email = function(id, template, recipient, language) {
         return result
       })
       
-      log.debug(`Tokens :: ${JSON.stringify(tokenised, null, '\t')}`)
-
       return tokenised
 
     }
@@ -217,8 +215,6 @@ compose.email = function(id, template, recipient, language) {
 
       email.subject = _deTokenise( email.subject, emailTokens )
       email.html = _deTokenise( email.html, emailTokens )
-
-      log.verbose(`Email: ${JSON.stringify(email, null, '\t')}`)
 
       return email
     }

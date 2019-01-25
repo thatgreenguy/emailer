@@ -4,6 +4,9 @@ CONST = {
   JDE: {
     MAIL_CONFIG: {
       DEFAULT_VERSION: '*ALL',
+      READY: 'R',
+      PROCESSED: 'Y',
+      PROCESS_ERROR: 'E',
       TOKEN: 'TOKEN',
       TOKEN_ID_LEAD: '[{',
       TOKEN_ID_TRAIL: '}]'

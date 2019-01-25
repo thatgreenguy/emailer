@@ -2,6 +2,8 @@ const CONST = require('./const')
 const config = require('./config')
 const log = require('./log')
 const oracledb = require('oracledb')
+const moment = require('moment')
+const helpers = require('./helpers')
 
 const credentials = {
   user: config.db.user,
@@ -9,13 +11,12 @@ const credentials = {
   connectString: config.db.connectString
 }
 
-const database = {}
+const SCHEMA = config.db.schema
+const TOKEN = CONST.JDE.MAIL_CONFIG.TOKEN
+const PROCESSED = CONST.JDE.MAIL_CONFIG.PROCESSED
+const READY = CONST.JDE.MAIL_CONFIG.READY
 
-// TESTING only...
-// Create a delay function to give Mihai chance to see connections ....
-const _artificialDelay = ( duration  ) => {
-  return new Promise(resolve => setTimeout(resolve, duration))
-}
+const database = {}
 
 
 database.checkQueue =  function() {
@@ -25,20 +26,13 @@ database.checkQueue =  function() {
     let dbConnection
 
     try {
-      let sql = `select * from ${config.db.schema}.F55NB901 where F55NB901.EC55NBES = 'R' and F55NB901.ECEDSP <> 'Y'`
+      let sql = `select * from ${SCHEMA}.F55NB901 
+        where EC55NBES = '${READY}' and ECEDSP <> '${PROCESSED}'`
       let binds = []
       let options = {}
 
       dbConnection = await oracledb.getConnection( credentials )
       let result = await dbConnection.execute( sql, binds, options )
-
-
-// TESTING only
-// Add some delay code here to give Mihai a chance to see whats happening
-//
-          log.info(`Artificial Delay starting - you have 60 seconds`)
-          await _artificialDelay(60000)
-          log.info(`Artificial Delay over - continue with close connection`)
 
       resolve( {result} )
       
@@ -68,39 +62,38 @@ database.updateQueue = function( id, processedFlag, errorMessage ) {
 
     try {
 
-//      let sql = `update ${config.db.schema}.F55NB901 set F55NB901.ECEDSP = '${processedFlag}', 
-//        F55NB901.ECUKEMES = '${errorMessage}', F55NB901.ECDTSE = 119024, F55NB901.ECY55TDA2 = 135003 
-//        where F55NB901.ECUKID = ${id} and F55NB901.EC55NBES = 'R' and F55NB901.ECEDSP <> 'Y'`
+      let datestamp = moment()
+      let timestamp = datestamp.format('h:mm:ss').split(':').join('')  
+      let julianDate = helpers.formatAsJdeJulian(datestamp)
 
-      let sql = `update CRPDTA.F55NB901 set ECEDSP = 'Y'`
+      let sql = `update ${SCHEMA}.F55NB901
+        set ECEDSP = '${processedFlag}', ECUKEMES = '${errorMessage}', 
+        ECDTSE = ${julianDate}, ECY55TDA2 = ${timestamp},
+        ECUPMJ = ${julianDate}, ECUPMT = ${timestamp},
+        ECPID = '${config.app.name}', ECJOBN = 'NODE', ECUSER = 'DOCKER' 
+        where ECUKID = ${id} and EC55NBES = '${READY}' and ECEDSP <> '${PROCESSED}'`
+
+      log.debug(`updateQueue : SQL : ${sql}`)
 
       let binds = []
       let options = { autoCommit: true }
 
-log.warn(sql)
-
       dbConnection = await oracledb.getConnection( credentials )
 
-log.warn(`connection: ${JSON.stringify(dbConnection)}`)
-
       let result = await dbConnection.execute( sql, binds, options )
-
-log.warn(`${JSON.stringify(result)}`)
 
       resolve( {result} )
       
     } catch ( err ) {
-log.warn(`${JSON.stringify(err)}`)
       reject( err )
 
     } finally {
-log.warn(`${JSON.stringify(dbConnection)}`)
       if ( dbConnection ) {
         try {
           await dbConnection.close()
 
         } catch ( err ) {
-          log.error(`CONST.MESSAGES.ERROR.CONNECTION_UPDATE_FAILED $(err)`)
+          log.error(`CONST.MESSAGES.ERROR.CONNECTION_CLOSE_FAILED $(err)`)
         }
       }
     }
@@ -114,9 +107,9 @@ database.readEmailConfiguration = function(defaultVersion, templateVersion) {
     let dbConnection
 
     try {
-      let sql = `select CRPGM, CRVERNM, CRCFGSID, CRBLKK, CRSEQ, CRTASKMISC from ${config.db.schema}.F559890 
-        where F559890.CRPGM = '${config.app.name}' and 
-        F559890.CRVERNM in ( '${defaultVersion}', '${templateVersion}' )
+      let sql = `select CRPGM, CRVERNM, CRCFGSID, CRBLKK, CRSEQ, CRTASKMISC from ${SCHEMA}.F559890 
+        where CRPGM = '${config.app.name}' and 
+        CRVERNM in ( '${defaultVersion}', '${templateVersion}' )
         order by crvernm, crcfgsid, crblkk, crseq `
       let binds = []
       let options = {}
@@ -149,7 +142,8 @@ database.readEmailTokens = function(id) {
     let dbConnection
 
     try {
-      let sql = `select * from ${config.db.schema}.F55NB911 where F55NB911.EDUKID = ${id} and F55NB911.ED55NBEDT = '${CONST.JDE.MAIL_CONFIG.TOKEN}' `
+      let sql = `select * from ${SCHEMA}.F55NB911 
+        where EDUKID = ${id} and ED55NBEDT = '${TOKEN}' `
       let binds = []
       let options = {}
 
@@ -181,7 +175,9 @@ database.readEmailAdditionalData = function(id) {
     let dbConnection
 
     try {
-      let sql = `select * from ${config.db.schema}.F55NB911 where F55NB911.EDUKID = ${id} and F55NB911.ED55NBEDT != '${CONST.JDE.MAIL_CONFIG.TOKEN}' ORDER BY ED55NBEDT, EDLINENUM`
+      let sql = `select * from ${SCHEMA}.F55NB911 
+        where EDUKID = ${id} and ED55NBEDT != '${TOKEN}'
+        ORDER BY ED55NBEDT, EDLINENUM`
       let binds = []
       let options = {}
 
