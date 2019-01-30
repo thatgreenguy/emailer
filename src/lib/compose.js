@@ -2,6 +2,7 @@ const CONST = require('./const')
 const config = require('./config')
 const log = require('./log')
 const database = require('./database')
+const validate = require('./validate')
 const systemtokens = require('./systemtokens')
 
 const compose = {}
@@ -20,38 +21,26 @@ const compose = {}
  *
  * Tokens are just key value pairs which are regex replaced in email subject and body text
  *
- * Note: Email configuration is sensitive to language code and template name and will be retireved 
- *       according to following rules/priority
- * 
- * Highest Priority : Template Name and Language Code
- * Next Highest     : Template Name 
- * Next Highest     : Default *ALL and Language Code
- * Lowest Priority  : Default *ALL
- *
- * All emails will have the same sender i.e. noreply@dlink.com so the configuration for this need 
- * only exist at the lowest level
- * 
- * A default catch all email subject line can be added at the Lowest Priority and also for the French language a 
- * So 1 entry at Default *ALL and another at *ALL plus 'F'. 
- * When the emailer runs with a German language code the Default *ALL Subject configuration entry will be used
- * When run for a French language code then French specific configuration will be picked up 
- * (overrides the Default *ALL entry)
- *
- * This same override concept works at each successive level from lowest to highest.
+ * Note: Email configuration for Templates is sensitive to language code and template name and empty/blank 
+ *       language code will become ' ' which is default language in JDE 
  *
  */
 
-compose.email = function(id, template, recipient, language) {
+compose.email = function(id, templateName, recipient, languageCode) {
 
-  language = language.trim()
-  template = template.trim()
+  language = typeof languageCode !== undefined ? languageCode.trim() : ' '
+  template = typeof templateName !== undefined ? templateName.trim() : ' ' 
+
+log.warn(`language: '${language}' template: '${template}'`)
 
   return new Promise(async function(resolve, reject) {
 
     let dbResult
     let emailConfiguration
     let emailTokens
+    let validated
     let email
+    let result
 
 
     function _tokenised(emailTokens) {
@@ -73,43 +62,10 @@ compose.email = function(id, template, recipient, language) {
 
     }
 
-    function _prioritised(emailConfiguration) {
+    function _collated(emailConfiguration) {
 
-      function _priorityFilter( constituentConfig, priority ) {
- 
-       return constituentConfig.filter( function( el, i) { 
- 
-          let test
-          let elLanguage = el[3]
-          let elTemplate = el[1]
+      let collatedEmailConfiguration = {}
 
-          elLanguage = elLanguage.trim()
-          elTemplate = elTemplate.trim()
-
-          switch ( priority ) {
-            case 1:
-              test = ( elLanguage == language && elTemplate == template   )         
-              break
-            case 2:
-              test = ( elTemplate == template   )         
-              break
-            case 3:
-              test = ( elLanguage == language && elTemplate == CONST.JDE.MAIL_CONFIG.DEFAULT_VERSION )         
-              break
-            case 4:
-              test = ( elTemplate == CONST.JDE.MAIL_CONFIG.DEFAULT_VERSION )         
-              break
-            default:
-              test = false
-              log.error(CONST.MESSAGES.ERROR.INVALID_PRIORITY_CODE)
-              break
-          }
-      
-          return test
-        })
-      }
-
-      let prioritisedEmailConfiguration = {}
       emailConfiguration = emailConfiguration.result.rows
 
       // Process each mail constituent part individually. EMAIL_TO, EMAIL_TEXT etc
@@ -122,37 +78,13 @@ compose.email = function(id, template, recipient, language) {
           return test;
         })
 
-        // Working with a filtered list of email configuration for the current constituent part
-        // allocate the correct prioritised configuration entry per Priority order:
-        //
-        // Priority 1 : Configuration matching the Template and Language code 
-        // Priority 2 : Configuration matching the Template  
-        // Priority 3 : Configuration matching the Default *ALL and Language code 
-        // Priority 4 : Configuration matching the Default *ALL
- 
-        let priorityConfig
-
-        for ( let priority = 1; priority < 5;  priority++ ) {
-
-          priorityConfig = _priorityFilter( constituentConfig, priority )  
-          
-          // Exit as soon some configuration is found at one of the priority levels.
-          if ( priorityConfig.length !== 0  ) {
-            log.debug(`Configuration found at Priority: ${priority} for : ${mailConstituent}`)
-            log.debug(`${JSON.stringify(priorityConfig, null, '\t')}`)
-            break
-          }
-        }
-
         // Collate the correct configuration entries for each mail constituent
 
-        prioritisedEmailConfiguration[mailConstituent] = priorityConfig
+        collatedEmailConfiguration[mailConstituent] = constituentConfig
 
       }
 
-      log.debug(`PrioritisedConfiguration ::: ${JSON.stringify(prioritisedEmailConfiguration, null, '\t')}`)
-
-      return prioritisedEmailConfiguration
+      return collatedEmailConfiguration
 
     }
 
@@ -228,14 +160,36 @@ compose.email = function(id, template, recipient, language) {
     // object to be sent.
 
     try {
+log.warn(`language: '${language}' template: '${template}'`)
 
-      dbResult = await database.readEmailConfiguration( CONST.JDE.MAIL_CONFIG.DEFAULT_VERSION, template )
-      emailConfiguration = _prioritised(dbResult)
+      dbResult = await database.readTemplateLanguageEmailConfiguration( template, language )
+log.warn(`language: '${language}' template: '${template}'`)
 
-      dbResult = await database.readEmailTokens( id )
-      emailTokens = _tokenised(dbResult) 
+      emailConfiguration = dbResult.result.rows
+      emailConfiguration = _collated(dbResult)
+      validated = validate.checkConfiguration( emailConfiguration  )      
 
-      resolve( _assemble( emailConfiguration, emailTokens ) )
+      if ( validated.valid ) {
+        log.verbose(`Valid Email configuration found for Template: ${template} and Language: ${language}`)
+
+        dbResult = await database.readEmailTokens( id )
+        emailTokens = _tokenised(dbResult) 
+
+        email = _assemble( emailConfiguration, emailTokens )
+
+      } else {
+        log.verbose(`Missing Email configuration for Template: ${template} and Language: ${language}`)
+
+        email = {}
+
+      }
+
+      result = {
+        email: email,
+        status: validated
+      }
+
+      resolve( result )
 
     } catch( err ) {
       reject( err )

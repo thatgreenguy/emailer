@@ -14,6 +14,7 @@ const credentials = {
 const SCHEMA = config.db.schema
 const TOKEN = CONST.JDE.MAIL_CONFIG.TOKEN
 const PROCESSED = CONST.JDE.MAIL_CONFIG.PROCESSED
+const PROCESS_ERROR = CONST.JDE.MAIL_CONFIG.PROCESS_ERROR
 const READY = CONST.JDE.MAIL_CONFIG.READY
 
 const database = {}
@@ -27,9 +28,10 @@ database.checkQueue =  function() {
 
     try {
       let sql = `select * from ${SCHEMA}.F55NB901 
-        where EC55NBES = '${READY}' and ECEDSP <> '${PROCESSED}'`
+        where EC55NBES = '${READY}' and ECEDSP not in ('${PROCESSED}', '${PROCESS_ERROR}') `
       let binds = []
       let options = {}
+      log.debug(`checkQueue : SQL : ${sql}`)
 
       dbConnection = await oracledb.getConnection( credentials )
       let result = await dbConnection.execute( sql, binds, options )
@@ -113,6 +115,48 @@ database.readEmailConfiguration = function(defaultVersion, templateVersion) {
         order by crvernm, crcfgsid, crblkk, crseq `
       let binds = []
       let options = {}
+      log.debug(`readEmailConfiguration : SQL : ${sql}`)
+
+      dbConnection = await oracledb.getConnection( credentials )
+      let result = await dbConnection.execute( sql, binds, options )
+
+      resolve( {result} )
+      
+    } catch ( err ) {
+      reject( err )
+
+    } finally {
+      if ( dbConnection ) {
+        try {
+          await dbConnection.close()
+
+        } catch ( err ) {
+          log.error(`CONST.MESSAGES.ERROR.CONNECTION_CLOSE_FAILED $(err)`)
+        }
+      }
+    }
+  }) 
+}
+
+database.readTemplateLanguageEmailConfiguration = function(templateVersion, templateLanguage) {
+
+  return new Promise(async function(resolve, reject) {
+
+    let dbConnection
+
+    try {
+
+      // When no language code explicitly specified search for JDE default langugage code of space
+      if ( templateLanguage === '' ) templateLanguage = ' '
+
+      let sql = `select CRPGM, CRVERNM, CRCFGSID, CRBLKK, CRSEQ, CRTASKMISC from ${SCHEMA}.F559890 
+        where CRPGM = '${config.app.name}' and 
+        CRVERNM = '${templateVersion}' and CRBLKK = '${templateLanguage}' 
+        order by crvernm, crcfgsid, crblkk, crseq `
+
+      let binds = []
+      let options = {}
+      log.debug(`readTemplateLanguageEmailConfiguration : SQL : ${sql}`)
 
       dbConnection = await oracledb.getConnection( credentials )
       let result = await dbConnection.execute( sql, binds, options )
@@ -146,6 +190,7 @@ database.readEmailTokens = function(id) {
         where EDUKID = ${id} and ED55NBEDT = '${TOKEN}' `
       let binds = []
       let options = {}
+      log.debug(`readEmailTokens : SQL : ${sql}`)
 
       dbConnection = await oracledb.getConnection( credentials )
       let result = await dbConnection.execute( sql, binds, options )
@@ -180,6 +225,7 @@ database.readEmailAdditionalData = function(id) {
         ORDER BY ED55NBEDT, EDLINENUM`
       let binds = []
       let options = {}
+      log.debug(`readEmailAdditionalData : SQL : ${sql}`)
 
       dbConnection = await oracledb.getConnection( credentials )
       let result = await dbConnection.execute( sql, binds, options )

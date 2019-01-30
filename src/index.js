@@ -33,18 +33,37 @@ async function processQueue( queued ) {
     let template = queuedMail[3]
     let recipient = queuedMail[4]
     let language = queuedMail[5]
+    let result  
     let email 
+    let status 
     let sendResponse
+    let processed
 
     try {
 
     log.info( `Start processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language}`)
   
-    email = await compose.email( id, template, recipient, language )
-    sendResponse = await mailer.send( email )
-    await database.updateQueue( id, PROCESSED, sendResponse )
+    result = await compose.email( id, template, recipient, language )
 
-    log.info( `Finished processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language}`)
+    status = result.status
+    email = result.email
+
+    // If email valid then attempt send 
+    if ( status.valid ) {
+
+        sendResponse = await mailer.send( email )
+        processed = PROCESSED
+
+    } else {
+
+        sendResponse = status.message
+        processed = PROCESS_ERROR
+
+    }
+
+    await database.updateQueue( id, processed, sendResponse )
+
+    log.info( `Finished processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language} - Result:: ${sendResponse}`)
 
     } catch(err) {
 
