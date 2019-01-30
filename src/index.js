@@ -32,46 +32,47 @@ async function processQueue( queued ) {
     let id = queuedMail[0]
     let template = queuedMail[3]
     let recipient = queuedMail[4]
-    let language = queuedMail[5]
+    let language = typeof queuedMail[5] !== undefined ? queuedMail[5] : ' '
     let result  
     let email 
     let status 
     let sendResponse
-    let processed
+    let processed = PROCESS_ERROR
 
     try {
 
-    log.info( `Start processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language}`)
-  
-    result = await compose.email( id, template, recipient, language )
+      log.info( `Start processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language}`)
 
-    status = result.status
-    email = result.email
+      result = await compose.email( id, template, recipient, language )
 
-    // If email valid then attempt send 
-    if ( status.valid ) {
+      log.verbose( `Composed email : ${JSON.stringify(result, null, '\t')}`)
+
+      email = result.email
+      status = result.status
+
+      // If email composed without errors then attempt send 
+      if ( status.valid ) {
 
         sendResponse = await mailer.send( email )
         processed = PROCESSED
 
-    } else {
-
+      } else {
         sendResponse = status.message
-        processed = PROCESS_ERROR
-
-    }
-
-    await database.updateQueue( id, processed, sendResponse )
-
-    log.info( `Finished processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language} - Result:: ${sendResponse}`)
+      }
 
     } catch(err) {
 
-      log.error(`Queued mail processing for item: ${id} failed with details: ${err}`)
+      // If we catch an unexpected program error then mark the email as in error and feedback error text
+
+      sendResponse = err
+      log.error(`Queued mail processing for item: ${id} failed : ${err}`)
 
     } finally {
 
-      // noop
+      // Error or not last action is to update the Email queue item as Processed or Errored
+
+      await database.updateQueue( id, processed, sendResponse )
+      log.info( `Finished processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language} - Result:: ${sendResponse}`)
 
     }
   }  

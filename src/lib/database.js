@@ -68,8 +68,13 @@ database.updateQueue = function( id, processedFlag, errorMessage ) {
       let timestamp = datestamp.format('h:mm:ss').split(':').join('')  
       let julianDate = helpers.formatAsJdeJulian(datestamp)
 
+      // Ensure internal error information or response from gmail API does not exceed space we have to store error message text
+      if ( errorMessage.length >= 100 ) errorMessage = errorMessage.substring(0, 100)
+
+      log.debug(`feedback message: ${errorMessage} and: ${errorMessage.length}`)
+
       let sql = `update ${SCHEMA}.F55NB901
-        set ECEDSP = '${processedFlag}', ECUKEMES = '${errorMessage}', 
+        set ECEDSP = '${processedFlag}', ECUKEMES = :1 , 
         ECDTSE = ${julianDate}, ECY55TDA2 = ${timestamp},
         ECUPMJ = ${julianDate}, ECUPMT = ${timestamp},
         ECPID = '${config.app.name}', ECJOBN = 'NODE', ECUSER = 'DOCKER' 
@@ -77,7 +82,7 @@ database.updateQueue = function( id, processedFlag, errorMessage ) {
 
       log.debug(`updateQueue : SQL : ${sql}`)
 
-      let binds = []
+      let binds = [ errorMessage ]
       let options = { autoCommit: true }
 
       dbConnection = await oracledb.getConnection( credentials )

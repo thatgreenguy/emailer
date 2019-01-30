@@ -28,10 +28,12 @@ const compose = {}
 
 compose.email = function(id, templateName, recipient, languageCode) {
 
-  language = typeof languageCode !== undefined ? languageCode.trim() : ' '
-  template = typeof templateName !== undefined ? templateName.trim() : ' ' 
+  log.debug(`Start composing email for - template: '${templateName}' and language: ${languageCode}`)
 
-log.warn(`language: '${language}' template: '${template}'`)
+  let template = templateName.trim() 
+  let language = typeof languageCode === 'string' ? languageCode.trim() : ' '	
+
+  log.debug(`Working with language: '${language}' and template: '${template}'`)
 
   return new Promise(async function(resolve, reject) {
 
@@ -160,9 +162,11 @@ log.warn(`language: '${language}' template: '${template}'`)
     // object to be sent.
 
     try {
+
 log.warn(`language: '${language}' template: '${template}'`)
 
       dbResult = await database.readTemplateLanguageEmailConfiguration( template, language )
+
 log.warn(`language: '${language}' template: '${template}'`)
 
       emailConfiguration = dbResult.result.rows
@@ -192,6 +196,9 @@ log.warn(`language: '${language}' template: '${template}'`)
       resolve( result )
 
     } catch( err ) {
+
+      log.warn(`Caught error: '${JSON.stringify(err, null, '\t')}`)
+
       reject( err )
 
     } finally {
