@@ -77,7 +77,7 @@ database.updateQueue = function( id, processedFlag, errorMessage, template ) {
       // Only update those columns when dealing with a Reminder Email Template
       let sql = ''
 
-      if ( template === 'NBDSRN'  ) {
+      if ( template === 'NBDSRN    '  ) {
 
         sql = `update ${SCHEMA}.F55NB901
           set ECEDSP = '${processedFlag}', ECUKEMES = :1 , 
