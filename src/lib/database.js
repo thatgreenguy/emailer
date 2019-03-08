@@ -56,7 +56,7 @@ database.checkQueue =  function() {
   }) 
 }
 
-database.updateQueue = function( id, processedFlag, errorMessage ) {
+database.updateQueue = function( id, processedFlag, errorMessage, template ) {
 
   return new Promise(async function(resolve, reject) {
 
@@ -73,12 +73,28 @@ database.updateQueue = function( id, processedFlag, errorMessage ) {
 
       log.debug(`feedback message: ${errorMessage} and: ${errorMessage.length}`)
 
-      let sql = `update ${SCHEMA}.F55NB901
-        set ECEDSP = '${processedFlag}', ECUKEMES = :1 , 
-        ECDTSE = ${julianDate}, ECY55TDA2 = ${timestamp},
-        ECUPMJ = ${julianDate}, ECUPMT = ${timestamp},
-        ECPID = '${config.app.name}', ECJOBN = 'NODE', ECUSER = 'DOCKER' 
-        where ECUKID = ${id} and EC55NBES = '${READY}' and ECEDSP <> '${PROCESSED}'`
+      // Template dictates whether we update the send date/time or not
+      // Only update those columns when dealing with a Reminder Email Template
+      let sql = ''
+
+      if ( template === 'NBDSRN'  ) {
+
+        sql = `update ${SCHEMA}.F55NB901
+          set ECEDSP = '${processedFlag}', ECUKEMES = :1 , 
+          ECDTSE = ${julianDate}, ECY55TDA2 = ${timestamp},
+          ECUPMJ = ${julianDate}, ECUPMT = ${timestamp},
+          ECPID = '${config.app.name}', ECJOBN = 'NODE', ECUSER = 'DOCKER' 
+          where ECUKID = ${id} and EC55NBES = '${READY}' and ECEDSP <> '${PROCESSED}'`
+
+      } else {
+ 
+        sql = `update ${SCHEMA}.F55NB901
+          set ECEDSP = '${processedFlag}', ECUKEMES = :1 , 
+          ECUPMJ = ${julianDate}, ECUPMT = ${timestamp},
+          ECPID = '${config.app.name}', ECJOBN = 'NODE', ECUSER = 'DOCKER' 
+          where ECUKID = ${id} and EC55NBES = '${READY}' and ECEDSP <> '${PROCESSED}'`
+
+      }
 
       log.debug(`updateQueue : SQL : ${sql}`)
 

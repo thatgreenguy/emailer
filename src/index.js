@@ -71,7 +71,7 @@ async function processQueue( queued ) {
 
       // Error or not last action is to update the Email queue item as Processed or Errored
 
-      await database.updateQueue( id, processed, sendResponse )
+      await database.updateQueue( id, processed, sendResponse, template )
       log.info( `Finished processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language} - Result:: ${sendResponse}`)
 
     }
