@@ -72,8 +72,7 @@ database.updateQueueSending = function( id, processedFlag, errorMessage, templat
       let sql = ''
  
       sql = `update ${SCHEMA}.F55NB901
-        set ECEDSP = :1
-        ECUPMJ = ${julianDate}, ECUPMT = ${timestamp},
+        set ECEDSP = :1 , ECUPMJ = ${julianDate}, ECUPMT = ${timestamp},
         ECPID = '${config.app.name}', ECJOBN = 'NODE', ECUSER = 'DOCKER' 
         where ECUKID = ${id} and EC55NBES = '${READY}' and ECEDSP <> '${PROCESSED}'`
 

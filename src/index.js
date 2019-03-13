@@ -9,6 +9,8 @@ const mailer = require('./lib/mailer')
 const PROCESSED = CONST.JDE.MAIL_CONFIG.PROCESSED
 const PROCESS_ERROR = CONST.JDE.MAIL_CONFIG.PROCESS_ERROR
 
+let processStatus = 0
+
 let check = 0
 
 async function checkQueue() {
@@ -17,12 +19,24 @@ async function checkQueue() {
   let result
   let queued
 
-  result = await database.checkQueue()
-  queued = result.result.rows  
-  if ( queued.length ) processQueue( queued )  
+  // If already processing no need to spawn another check just yet wait for next poll period
+  if ( processStatus == 0 ) {
 
-  log.verbose(`Emailer Queue check complete, found ${queued.length}`)  
+    processStatus = 1
 
+    result = await database.checkQueue()
+    queued = result.result.rows  
+    
+    if ( queued.length ) await processQueue( queued )  
+
+    log.info(`Emailer Queue check complete, found ${queued.length}`)  
+    processStatus = 0
+
+  } else {
+  
+    log.warn(`Emailer Queue check skipped as previous one still in progress. Will try again at next Poll interval.`)  
+
+  }
 }
 
 async function processQueue( queued ) {
@@ -43,7 +57,7 @@ async function processQueue( queued ) {
 
       log.info( `Start processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language}`)
 
-      result = await compose.updateQueueSending( id, template, recipient, language )
+      result = await database.updateQueueSending( id, template, recipient, language )
       result = await compose.email( id, template, recipient, language )
 
       log.verbose( `Composed email : ${JSON.stringify(result, null, '\t')}`)

@@ -27,7 +27,7 @@ mailer.send = function (email) {
       // if that option is inplay also clear out cc and bcc fields to email only goes to designated recipient
       if ( config.app.overrideAllRecipientsTo !== ''  ) {
 
-        log.warn('Recipients override is in place for Development/Testing. So emails will only be sent to: ', config.app.overrideAllRecipientsTo)
+        log.warn(`Recipients override is in place - see config DEV or TEST_OVERRIDE_ALL_RECIPIENTS_TO setting. As a result emails will only be sent to: ${config.app.overrideAllRecipientsTo}`)
 	email.to = config.app.overrideAllRecipientsTo
         email.cc = ''
         email.bcc = ''
