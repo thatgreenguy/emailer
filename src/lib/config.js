@@ -31,7 +31,7 @@ const testing = {
     systemDateSeparator: process.env.TEST_SYSTEM_DATE_SEPARATOR || '-',
     logLevel: process.env.TEST_LOG_LEVEL || 'verbose',
     pollingInterval: parseInt(process.env.TEST_POLLING_INTERVAL) || 5000,
-    overrideAllRecipientsTo: process.env.DEV_OVERRIDE_ALL_RECIPIENTS_TO || ''
+    overrideAllRecipientsTo: process.env.TEST_OVERRIDE_ALL_RECIPIENTS_TO || ''
   },
   db: {
     user: process.env.TEST_DB_USER,
@@ -52,7 +52,7 @@ const production = {
     systemDateSeparator: process.env.LIVE_SYSTEM_DATE_SEPARATOR || '-',
     logLevel: process.env.DEV_LOG_LEVEL || 'info',
     pollingInterval: parseInt(process.env.LIVE_POLLING_INTERVAL) || 15000
-    overrideAllRecipientsTo: process.env.DEV_OVERRIDE_ALL_RECIPIENTS_TO || ''
+    overrideAllRecipientsTo: process.env.LIVE_OVERRIDE_ALL_RECIPIENTS_TO || ''
   },
   db: {
     user: process.env.LIVE_DB_USER,
