@@ -23,6 +23,16 @@ mailer.send = function (email) {
 
     try {
 
+      // It is possible to override email recipient to a developer or tester email account 
+      // if that option is inplay also clear out cc and bcc fields to email only goes to designated recipient
+      if ( config.app.overrideAllRecipientsTo !== ''  ) {
+
+        log.warn('Recipients override is in place for Development/Testing. So emails will only be sent to: ', config.app.overrideAllRecipientsTo)
+	email.to = config.app.overrideAllRecipientsTo
+        email.cc = ''
+        email.bcc = ''
+      }
+
       sendResponse = await transport.sendMail(email)
 
       // The message ID is the main thing we wantt to capture and store as success message

@@ -14,6 +14,7 @@ const credentials = {
 const SCHEMA = config.db.schema
 const TOKEN = CONST.JDE.MAIL_CONFIG.TOKEN
 const PROCESSED = CONST.JDE.MAIL_CONFIG.PROCESSED
+const PROCESS_SENDING = CONST.JDE.MAIL_CONFIG.PROCESS_SENDING
 const PROCESS_ERROR = CONST.JDE.MAIL_CONFIG.PROCESS_ERROR
 const READY = CONST.JDE.MAIL_CONFIG.READY
 
@@ -28,7 +29,7 @@ database.checkQueue =  function() {
 
     try {
       let sql = `select * from ${SCHEMA}.F55NB901 
-        where EC55NBES = '${READY}' and ECEDSP not in ('${PROCESSED}', '${PROCESS_ERROR}') `
+        where EC55NBES = '${READY}' and ECEDSP not in ('${PROCESSED}', '${PROCESS_SENDING}'  ,'${PROCESS_ERROR}') `
       let binds = []
       let options = {}
       log.debug(`checkQueue : SQL : ${sql}`)
@@ -46,6 +47,53 @@ database.checkQueue =  function() {
       if ( dbConnection ) {
         try {
 
+          await dbConnection.close()
+
+        } catch ( err ) {
+          log.error(`CONST.MESSAGES.ERROR.CONNECTION_CLOSE_FAILED $(err)`)
+        }
+      }
+    }
+  }) 
+}
+
+database.updateQueueSending = function( id, processedFlag, errorMessage, template ) {
+
+  return new Promise(async function(resolve, reject) {
+
+    let dbConnection
+
+    try {
+
+      let datestamp = moment()
+      let timestamp = datestamp.format('h:mm:ss').split(':').join('')  
+      let julianDate = helpers.formatAsJdeJulian(datestamp)
+
+      let sql = ''
+ 
+      sql = `update ${SCHEMA}.F55NB901
+        set ECEDSP = :1
+        ECUPMJ = ${julianDate}, ECUPMT = ${timestamp},
+        ECPID = '${config.app.name}', ECJOBN = 'NODE', ECUSER = 'DOCKER' 
+        where ECUKID = ${id} and EC55NBES = '${READY}' and ECEDSP <> '${PROCESSED}'`
+
+      log.debug(`updateQueueSending : SQL : ${sql}`)
+
+      let binds = [ PROCESS_SENDING ]
+      let options = { autoCommit: true }
+
+      dbConnection = await oracledb.getConnection( credentials )
+
+      let result = await dbConnection.execute( sql, binds, options )
+
+      resolve( {result} )
+      
+    } catch ( err ) {
+      reject( err )
+
+    } finally {
+      if ( dbConnection ) {
+        try {
           await dbConnection.close()
 
         } catch ( err ) {

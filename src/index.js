@@ -43,6 +43,7 @@ async function processQueue( queued ) {
 
       log.info( `Start processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language}`)
 
+      result = await compose.updateQueueSending( id, template, recipient, language )
       result = await compose.email( id, template, recipient, language )
 
       log.verbose( `Composed email : ${JSON.stringify(result, null, '\t')}`)

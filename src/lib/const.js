@@ -6,6 +6,7 @@ CONST = {
       DEFAULT_VERSION: '*ALL',
       READY: 'R',
       PROCESSED: 'Y',
+      PROCESS_SENDING: 'S',
       PROCESS_ERROR: 'E',
       TOKEN: 'TOKEN',
       TOKEN_ID_LEAD: '[{',
