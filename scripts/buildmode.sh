@@ -1,1 +1,1 @@
-docker build -t dlink/emailer .
+docker build -t dlink/jdeemailer .
