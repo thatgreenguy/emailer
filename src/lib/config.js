@@ -50,7 +50,7 @@ const production = {
   app: {
     name: 'EMAILER',
     systemDateSeparator: process.env.LIVE_SYSTEM_DATE_SEPARATOR || '-',
-    logLevel: process.env.DEV_LOG_LEVEL || 'info',
+    logLevel: process.env.LIVE_LOG_LEVEL || 'info',
     pollingInterval: parseInt(process.env.LIVE_POLLING_INTERVAL) || 15000,
     overrideAllRecipientsTo: process.env.LIVE_OVERRIDE_ALL_RECIPIENTS_TO || ''
   },
