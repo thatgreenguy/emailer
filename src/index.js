@@ -5,6 +5,7 @@ const database = require('./lib/database')
 const compose = require('./lib/compose')
 const log = require('./lib/log')
 const mailer = require('./lib/mailer')
+const attachments = require('./lib/attachments')
 
 const PROCESSED = CONST.JDE.MAIL_CONFIG.PROCESSED
 const PROCESS_ERROR = CONST.JDE.MAIL_CONFIG.PROCESS_ERROR
@@ -68,6 +69,14 @@ async function processQueue( queued ) {
       // If email composed without errors then attempt send 
       if ( status.valid ) {
 
+        // Fetch attachments such as Labels if required
+        if ( email.attachlabel === 'Y' ) email.attachments = await attachments.fetch( template, email );
+
+log.info('----------------------------------------')
+log.info(JSON.stringify(email))
+log.info('----------------------------------------')
+        
+        // Send the email
         sendResponse = await mailer.send( email )
         processed = PROCESSED
 

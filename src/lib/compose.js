@@ -143,6 +143,11 @@ compose.email = function(id, templateName, recipient, languageCode) {
       email.html += _extractConfigData( CONST.JDE.MAIL_STRUCTURE.BODY_FOOT, '')
       email.html += _extractConfigData( CONST.JDE.MAIL_STRUCTURE.BODY_LEGAL, '')
 
+      // Determine whether we need to fetch a Label to attach to this email
+      email.attachlabel = _extractConfigData( CONST.JDE.MAIL_STRUCTURE.ATTACH_LABEL, '')
+
+
+
       // Scan and replace any Tokens embedded in Email Subject and/or Body with data values
 
       emailTokens = systemtokens.add( emailTokens ) 
@@ -171,6 +176,7 @@ log.warn(`language: '${language}' template: '${template}'`)
 
       emailConfiguration = dbResult.result.rows
       emailConfiguration = _collated(dbResult)
+
       validated = validate.checkConfiguration( emailConfiguration  )      
 
       if ( validated.valid ) {
