@@ -62,20 +62,25 @@ attachments.remove = function ( attachments ) {
   return new Promise( async function( resolve, reject ) {
 
     let result = {};
-    let filesDeleted = 0;
 
     try {
 
       // Once attachments are sent remove them from local storage
       attachments.forEach( function(el, index) {
 
-        console.log(el);
-        filesDeleted++;
-
+        let removeFile =  el.path;
+        fs.unlinkSync( removeFile, (err) => {
+          if ( err ) {
+            throw err;
+            return;
+          }          
+        })
       });
 
+
+      log.debug('Removed Attachments : ', attachments);
+
       result.status = 'OK';
-      result.deleteCount = filesDeleted;
       resolve(result)
 
     } catch ( err )  {
