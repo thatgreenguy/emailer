@@ -9,7 +9,8 @@ const development = {
     systemDateSeparator: process.env.DEV_SYSTEM_DATE_SEPARATOR || '-',
     logLevel: process.env.DEV_LOG_LEVEL || 'debug',
     pollingInterval: parseInt(process.env.DEV_POLLING_INTERVAL) || 5000,
-    overrideAllRecipientsTo: process.env.DEV_OVERRIDE_ALL_RECIPIENTS_TO || ''
+    overrideAllRecipientsTo: process.env.DEV_OVERRIDE_ALL_RECIPIENTS_TO || '',
+    tmpFolder: process.env.DEV_TMP_FOLDER || '/app/src/'
   },
   db: {
     user: process.env.DEV_DB_USER,
@@ -22,6 +23,13 @@ const development = {
     port: process.env.DEV_MAIL_PORT,
     user: process.env.DEV_MAIL_USER,
     password: process.env.DEV_MAIL_PASSWORD
+  },
+  api: {
+    dpdUser: process.env.DEV_DPD_USER || 'testuser1',
+    dpdPassword: process.env.DEV_DPD_PASSWORD || 'testpassword1',
+    dpdLabels: process.env.DEV_DPD_URL || 'https://integracijos.dpd.lt/ws-mapper-rest/parcelPrint_',
+    dpdFilenamePrefix: process.env.DEV_DPD_FILENAME_PREFIX || 'Dlink_DPD_',
+    dpdFilenameSuffix: process.env.DEV_DPD_FILENAME_SUFFIX || '.pdf'
   }
 }
 
@@ -31,7 +39,8 @@ const testing = {
     systemDateSeparator: process.env.TEST_SYSTEM_DATE_SEPARATOR || '-',
     logLevel: process.env.TEST_LOG_LEVEL || 'verbose',
     pollingInterval: parseInt(process.env.TEST_POLLING_INTERVAL) || 5000,
-    overrideAllRecipientsTo: process.env.TEST_OVERRIDE_ALL_RECIPIENTS_TO || ''
+    overrideAllRecipientsTo: process.env.TEST_OVERRIDE_ALL_RECIPIENTS_TO || '',
+    tmpFolder: process.env.TEST_TMP_FOLDER || '/app/src/'
   },
   db: {
     user: process.env.TEST_DB_USER,
@@ -44,6 +53,13 @@ const testing = {
     port: process.env.TEST_MAIL_PORT,
     user: process.env.TEST_MAIL_USER,
     password: process.env.TEST_MAIL_PASSWORD
+  },
+  api: {
+    dpdUser: process.env.TEST_DPD_USER || 'testuser1',
+    dpdPassword: process.env.TEST_DPD_PASSWORD || 'testpassword1',
+    dpdLabels: process.env.TEST_DPD_URL || 'https://integracijos.dpd.lt/ws-mapper-rest/parcelPrint_',
+    dpdFilenamePrefix: process.env.TEST_DPD_FILENAME_PREFIX || 'Dlink_DPD_',
+    dpdFilenameSuffix: process.env.TEST_DPD_FILENAME_SUFFIX || '.pdf'
   }
 }
 const production = {
@@ -52,8 +68,9 @@ const production = {
     systemDateSeparator: process.env.LIVE_SYSTEM_DATE_SEPARATOR || '-',
     logLevel: process.env.LIVE_LOG_LEVEL || 'info',
     pollingInterval: parseInt(process.env.LIVE_POLLING_INTERVAL) || 15000,
-    overrideAllRecipientsTo: process.env.LIVE_OVERRIDE_ALL_RECIPIENTS_TO || ''
-  },
+    overrideAllRecipientsTo: process.env.LIVE_OVERRIDE_ALL_RECIPIENTS_TO || '',
+    tmpFolder: process.env.LIVE_TMP_FOLDER || '/app/src/' 
+   },
   db: {
     user: process.env.LIVE_DB_USER,
     password: process.env.LIVE_DB_PASSWORD,
@@ -65,6 +82,13 @@ const production = {
     port: process.env.LIVE_MAIL_PORT,
     user: process.env.LIVE_MAIL_USER,
     password: process.env.LIVE_MAIL_PASSWORD
+  },
+  api: {
+    dpdUser: process.env.LIVE_DPD_USER || 'testuser1',
+    dpdPassword: process.env.LIVE_DPD_PASSWORD || 'testpassword1',
+    dpdLabels: process.env.LIVE_DPD_URL || 'https://integracijos.dpd.lt/ws-mapper-rest/parcelPrint_',
+    dpdFilenamePrefix: process.env.LIVE_DPD_FILENAME_PREFIX || 'Dlink_DPD_',
+    dpdFilenameSuffix: process.env.LIVE_DPD_FILENAME_SUFFIX || '.pdf'
   }
 }
 

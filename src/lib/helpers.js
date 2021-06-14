@@ -29,5 +29,25 @@ helpers.formatAsJdeJulian = function( date ) {
   return jdeJulian
 }
 
+helpers.getTokenValue = function( tokens, target ) {
+
+  let result;
+
+  tokens.forEach( function( el, index ) {
+
+    let token = Object.keys(el)[0]
+    let value = Object.values(el)[0]
+
+    log.debug(`Token: ${token} and value: ${value}`)
+
+    if ( token === target ) result = value;
+  })
+
+  return result;
+
+}
+
+
 module.exports = helpers
+
 

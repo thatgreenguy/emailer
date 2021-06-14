@@ -65,19 +65,23 @@ async function processQueue( queued ) {
 
       email = result.email
       status = result.status
+      tokens = result.tokens
 
       // If email composed without errors then attempt send 
       if ( status.valid ) {
 
         // Fetch attachments such as Labels if required
-        if ( email.attachlabel === 'Y' ) email.attachments = await attachments.fetch( template, email );
+        if ( email.attachlabel === 'Y' ) {
+	  let response = await attachments.fetch( template, email, tokens );
+          email.attachments = response.attachments;
+	}	
 
-log.info('----------------------------------------')
-log.info(JSON.stringify(email))
-log.info('----------------------------------------')
-        
         // Send the email
         sendResponse = await mailer.send( email )
+
+        // Once attachments sent remove them from local storage
+        await attachments.remove( email.attachments );
+
         processed = PROCESSED
 
       } else {

@@ -41,6 +41,9 @@ fetch(testurl,
       filename: fileName,
       path: filePath
     }];
+
+console.log(email)
+
     mailer.send( email )
 
 
