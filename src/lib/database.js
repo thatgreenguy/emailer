@@ -316,4 +316,81 @@ database.readEmailAdditionalData = function(id) {
   }) 
 }
 
+
+database.getEmailTemplate = function(txky) {
+
+  return new Promise(async function(resolve, reject) {
+
+    let dbConnection
+
+    try {
+      // select utl_raw.cast_to_varchar2(dbms_lob.substr(gdtxft, 3200, 1)) from crpdta.f00165 where gdobnm = 'GT559890A';
+      let sql = `select utl_raw.cast_to_varchar2(dbms_lob.substr(gdtxft, 3200, 1)) from ${SCHEMA}.f00165   
+        where GDOBNM = 'GT559890A' and GDTXKY = '${txky}' and GDGTITNM = 'Text1'`
+      let binds = []
+      let options = {}
+      log.debug(`getEmailTemplate : SQL : ${sql}`)
+
+      dbConnection = await oracledb.getConnection( credentials )
+      let result = await dbConnection.execute( sql, binds, options )
+
+      resolve( {result} )
+      
+    } catch ( err ) {
+      reject( err )
+
+    } finally {
+      if ( dbConnection ) {
+        try {
+          await dbConnection.close()
+
+        } catch ( err ) {
+          log.error(`CONST.MESSAGES.ERROR.CONNECTION_CLOSE_FAILED $(err)`)
+        }
+      }
+    }
+  }) 
+}
+
+database.getEmailTemplateBlob = function(txky) {
+
+  return new Promise(async function(resolve, reject) {
+
+    let dbConnection
+
+    try {
+      // select utl_raw.cast_to_varchar2(dbms_lob.substr(gdtxft, 3200, 1)) from crpdta.f00165 where gdobnm = 'GT559890A';
+      let sql = `select gdtxft from ${SCHEMA}.f00165   
+        where GDOBNM = 'GT559890A' and GDTXKY = '${txky}' and GDGTITNM = 'Text1'`
+      let binds = []
+      let options = {};
+
+      log.debug(`getEmailTemplate : SQL : ${sql}`)
+
+      // oracledb.fetchAsString = [ oracledb.CLOB ];
+      oracledb.fetchAsBuffer = [ oracledb.BLOB ];
+
+      dbConnection = await oracledb.getConnection( credentials )
+      let result = await dbConnection.execute( sql, binds, options )
+
+      resolve( {result} )
+      
+    } catch ( err ) {
+      reject( err )
+
+    } finally {
+      if ( dbConnection ) {
+        try {
+          await dbConnection.close()
+
+        } catch ( err ) {
+          log.error(`CONST.MESSAGES.ERROR.CONNECTION_CLOSE_FAILED $(err)`)
+        }
+      }
+    }
+  }) 
+}
+
+
+
 module.exports = database

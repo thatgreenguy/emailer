@@ -26,7 +26,7 @@ const compose = {}
  *
  */
 
-compose.email = function(id, templateName, recipient, languageCode) {
+compose.email = function(id, templateName, recipient, languageCode, attachmentTemplateText ) {
 
   log.debug(`Start composing email for - template: '${templateName}' and language: ${languageCode}`)
 
@@ -43,7 +43,6 @@ compose.email = function(id, templateName, recipient, languageCode) {
     let validated
     let email
     let result
-
 
     function _tokenised(emailTokens) {
 
@@ -142,6 +141,14 @@ compose.email = function(id, templateName, recipient, languageCode) {
       email.html += _extractConfigData( CONST.JDE.MAIL_STRUCTURE.BODY_BODY, '')
       email.html += _extractConfigData( CONST.JDE.MAIL_STRUCTURE.BODY_FOOT, '')
       email.html += _extractConfigData( CONST.JDE.MAIL_STRUCTURE.BODY_LEGAL, '')
+
+      // Email Template text was stored in multiple lines of EMAIL_TEXT within F559890 but now it can be setup more simply
+      // in a media object text attachement against just 1 EMAIL_TEXT record
+      // If attachmentTemplateText is available then override email.html here with the attachment template setup.
+
+console.log('before: ', email.html)
+      if ( attachmentTemplateText !== '' ) email.html = JSON.parse( JSON.stringify( attachmentTemplateText ) );
+console.log('after: ', email.html)
 
       // Attachment handling will need to know whether to include attachments Y/N and parcel number
       email.attachlabel = _extractConfigData( CONST.JDE.MAIL_STRUCTURE.ATTACH_LABEL, '')
