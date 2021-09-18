@@ -30,6 +30,11 @@ compose.email = function(id, templateName, recipient, languageCode, attachmentTe
 
   log.debug(`Start composing email for - template: '${templateName}' and language: ${languageCode}`)
 
+
+  console.log('----------------');
+  console.log(attachmentTemplateText);
+  console.log('----------------');
+
   let template = templateName.trim() 
   let language = typeof languageCode === 'string' ? languageCode.trim() : ' '	
 

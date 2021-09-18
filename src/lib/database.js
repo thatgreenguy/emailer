@@ -361,7 +361,7 @@ database.getEmailTemplateBlob = function(txky) {
     try {
       // select utl_raw.cast_to_varchar2(dbms_lob.substr(gdtxft, 3200, 1)) from crpdta.f00165 where gdobnm = 'GT559890A';
       let sql = `select gdtxft from ${SCHEMA}.f00165   
-        where GDOBNM = 'GT559890A' and GDTXKY = '${txky}' and GDGTITNM = 'Text1'`
+        where GDOBNM = 'GT559890A' and GDGTITNM = '${txky}' and GDTXKY like '%|EMAIL_TEXT|%'`
       let binds = []
       let options = {};
 

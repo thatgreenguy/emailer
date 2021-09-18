@@ -4,7 +4,7 @@ const decoder = new StringDecoder('utf8');
 
 async function fetchTemplate() {
 
-  let result = await database.getEmailTemplate('EMAILER|DPDC|EMAIL_TEXT|');
+  let result = await database.getEmailTemplate('A1E DPDC');
   let row = result.result.rows[0]
 
   console.log('Email Template Data: ', row)

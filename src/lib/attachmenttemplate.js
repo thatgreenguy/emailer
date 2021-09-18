@@ -6,6 +6,7 @@ const validate = require('./validate')
 const systemtokens = require('./systemtokens')
 const { StringDecoder } = require('string_decoder');
 const decoder = new StringDecoder('utf8');
+const blob = require('./blob');
 
 const attachmenttemplate = {}
 
@@ -30,30 +31,30 @@ attachmenttemplate.fetch = function( templateName, languageCode ) {
     try {
 
       let dbResult;
-      let jdeAttachKey = `EMAILER|${template}|EMAIL_TEXT|${language}`;
+      // let jdeAttachKey = `EMAILER|${template}|EMAIL_TEXT|${language}`;
 
-      console.log('----------- jdeAttachKey: ', jdeAttachKey);
+      console.log('----------- Template: ', template);
 
-      dbResult = await database.getEmailTemplateBlob( jdeAttachKey );      
+      dbResult = await database.getEmailTemplateBlob( template );      
       let rows = dbResult.result.rows;
-      if ( rows.length === 1 ) {
+      if ( rows.length > 0 ) {
 
         // Found an attachment so use that in place of any old setup in F559890 
-        let row = rows[0];
-        let et = row[0].toString('utf16le');
+        let clob = rows[0];
         result.found = true;
-        result.templateText = et;
+        result.templateText = clob.toString('ucs2');
 
       } else {
 
         result.found = false;
         result.templateText = '';
-        result.try1  = '';
       }
 
-      console.log('---------- RESULT ------------------------------------: ')
-      console.log('---------- RESULT : ', result)
-      console.log('---------- RESULT ------------------------------------: ')
+
+console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXxx');
+console.log('resolve result has : ', result);
+console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXxx');
+
 
       resolve( result )
 

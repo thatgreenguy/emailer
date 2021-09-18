@@ -6,7 +6,7 @@ const compose = require('./lib/compose')
 const log = require('./lib/log')
 const mailer = require('./lib/mailer')
 const attachments = require('./lib/attachments')
-const attachmenttemplate = require('./lib/attachmenttemplate')
+const emailTemplate = require('./lib/emailTemplate')
 
 const PROCESSED = CONST.JDE.MAIL_CONFIG.PROCESSED
 const PROCESS_ERROR = CONST.JDE.MAIL_CONFIG.PROCESS_ERROR
@@ -54,18 +54,20 @@ async function processQueue( queued ) {
     let status 
     let sendResponse
     let processed = PROCESS_ERROR
-    let attachmentTemplate = '';
+    let emailTemplateText = '';
 
     try {
 
       log.info( `Start processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language}`)
 
       result = await database.updateQueueSending( id, template, recipient, language )
-      result = await attachmenttemplate.fetch( template, language );
+      let et = await emailTemplate.get( 'A1E DPDP');
+  
+      console.log('WTF: ', et );
       
-      if ( result.found ) attachmentTemplate = result.templateText;
+      if ( et.found ) emailTemplateText = et.text;
 
-      result = await compose.email( id, template, recipient, language, attachmentTemplate )
+      result = await compose.email( id, template, recipient, language, emailTemplateText )
 
       log.verbose( `Composed email : ${JSON.stringify(result, null, '\t')}`)
 

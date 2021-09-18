@@ -4,20 +4,20 @@ const decoder = new StringDecoder('utf8');
 
 async function fetchTemplate() {
 
-  let result = await database.getEmailTemplateBlob('EMAILER|DPDC|EMAIL_TEXT|');
+  let result = await database.getEmailTemplateBlob('A1E DPDP');
 
-  console.log('Result: ', JSON.stringify(result))
+  //console.log('Result: ', JSON.stringify(result))
 
   let row = result.result.rows[0]
 
   //console.log('Result: Row: ', row)
-  console.log('Result: Row: ', row.length)
+  //console.log('Result: Row: ', row.length)
 
   let clob = row[0];
-  console.log('Result: CLOB ::: ', clob)
+  //console.log('Result: CLOB ::: ', clob)
   
 
-  console.log('Email Template Data: ', row)
+  //console.log('Email Template Data: ', row)
 
   let tmp = row[0];
 //  let template = tmp.toString("utf16le");
@@ -26,7 +26,7 @@ async function fetchTemplate() {
   console.log('template: ', template)
 
   let output = {}
-  output.test1 = template;
+  output.test1 = tmp.toString('ucs2');
 
  console.log('output::::: ', output)
 
