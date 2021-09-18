@@ -19,20 +19,39 @@ attachments.fetch = function ( template, email, tokens ) {
       let templateCheck = template.trim();
       let labelType = email.attachlabel;
 
-console.log('what info in tokens? : ', tokens )
-console.log('what info in template ? : ', template  )
+      // We need to know the journey type of this parcel/shipment
+      let journeyType;
+      let shipParcelNumber;
+      let shipShipmentId;
+      let returnParcelNumber;
+      let returnOrderNumber;
+      let returnShipmentId;
 
+
+      let search = tokens.find(e => e.JOURNEY_TYPE);
+      journeyType = search.JOURNEY_TYPE;
+      search = tokens.find(e => e.SHIP_SHIPMENT_ID);
+      shipShipmentId = search.SHIP_SHIPMENT_ID;
+      search = tokens.find(e => e.SHIP_PARCEL_NUMBER);
+      shipParcelNumber  = search.SHIP_PARCEL_NUMBER;
+      search = tokens.find(e => e.RETURN_SHIPMENT_ID);
+      returnShipmentId  = search.RETURN_SHIPMENT_ID;
+      search = tokens.find(e => e.RETURN_PARCEL_NUMBER);
+      returnParcelNumber  = search.RETURN_PARCEL_NUMBER;
+      search = tokens.find(e => e.RETURN_ORDER_NUMBER);
+      returnOrderNumber  = search.RETURN_ORDER_NUMBER;
 
       // DPD Shipment Labels
       if ( labelType === 'DPD' ) {
 
-        // Parcel number will be available as a Token
-        let parcelNumber = helpers.getTokenValue(tokens, 'DPD_PARCEL_NUMBER');
+        // Set DPD Parcel number according to Journey type
+        if ( journeyType === 'RETURN' ) {
+          parcelNumber = returnParcelNumber;
+        } else {
+          parcelNumber = shipParcelNumber;
+        }
 
-	// TESTING ONLY 
-        parcelNumber = '05809023172694';
-	// TETING ONLY
-
+        // So long as we have a parcelNumber then go ahead and try to get the DPD Label for it
         if ( parcelNumber !== undefined ) {
 
           // Get the Label attachment pdf file from DPD
@@ -51,9 +70,14 @@ console.log('what info in template ? : ', template  )
       // UPS Shipment Labels
       if ( labelType === 'UPS' ) {
 
-        // Parcel number will be available as a Token
-        let parcelNumber = helpers.getTokenValue(tokens, 'DPD_PARCEL_NUMBER');
+        // Set UPS number according to Journey type
+        if ( journeyType === 'RETURN' ) {
+          parcelNumber = returnParcelNumber;
+        } else {
+          parcelNumber = shipParcelNumber;
+        }
 
+        // So long as we have a parcelNumber then go ahead and try to get the UPS Label for it
         if ( parcelNumber !== undefined ) {
 
           // Get the Label attachment pdf file from DPD
