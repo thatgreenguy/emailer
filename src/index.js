@@ -61,11 +61,8 @@ async function processQueue( queued ) {
       log.info( `Start processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language}`)
 
       result = await database.updateQueueSending( id, template, recipient, language )
-      let et = await emailTemplate.get( 'A1E DPDP');
-  
-      console.log('WTF: ', et );
-      
-      if ( et.found ) emailTemplateText = et.text;
+      let et = await emailTemplate.get( template );  
+      emailTemplateText = et.text;
 
       result = await compose.email( id, template, recipient, language, emailTemplateText )
 
@@ -79,16 +76,21 @@ async function processQueue( queued ) {
       if ( status.valid ) {
 
         // Fetch attachments such as Labels if required
-        if ( email.attachlabel === 'Y' ) {
+        if ( email.attachlabel === 'DPD' || email.attachlabel === 'UPS' ) {
 	  let response = await attachments.fetch( template, email, tokens );
+
+	console.log('ATTACH response is : ', response)
+
           email.attachments = response.attachments;
 	}	
 
         // Send the email
         sendResponse = await mailer.send( email )
 
-        // Once attachments sent remove them from local storage
-        await attachments.remove( email.attachments );
+        // After an Attachment is generated and sent then remove it from local storage
+        if ( email.attachlabel === 'DPD' || email.attachlabel === 'UPS' ) {
+          await attachments.remove( email.attachments );
+	}
 
         processed = PROCESSED
 

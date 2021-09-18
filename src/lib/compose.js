@@ -30,11 +30,6 @@ compose.email = function(id, templateName, recipient, languageCode, attachmentTe
 
   log.debug(`Start composing email for - template: '${templateName}' and language: ${languageCode}`)
 
-
-  console.log('----------------');
-  console.log(attachmentTemplateText);
-  console.log('----------------');
-
   let template = templateName.trim() 
   let language = typeof languageCode === 'string' ? languageCode.trim() : ' '	
 
@@ -151,9 +146,7 @@ compose.email = function(id, templateName, recipient, languageCode, attachmentTe
       // in a media object text attachement against just 1 EMAIL_TEXT record
       // If attachmentTemplateText is available then override email.html here with the attachment template setup.
 
-console.log('before: ', email.html)
       if ( attachmentTemplateText !== '' ) email.html = JSON.parse( JSON.stringify( attachmentTemplateText ) );
-console.log('after: ', email.html)
 
       // Attachment handling will need to know whether to include attachments Y/N and parcel number
       email.attachlabel = _extractConfigData( CONST.JDE.MAIL_STRUCTURE.ATTACH_LABEL, '')
