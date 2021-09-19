@@ -19,27 +19,28 @@ attachments.fetch = function ( template, email, tokens ) {
       let templateCheck = template.trim();
       let labelType = email.attachlabel;
 
+console.log('============= check point A : whats in Tokens : ', tokens)
+
+    let lookupToken = async function( token ) 
+    {
+      let v;
+      try {
+        tokens.forEach( (e) => {
+          if ( Object.keys(e) == token ) v = e[token];
+        })
+        return v;
+      } catch(e) {}
+    };
+
       // We need to know the journey type of this parcel/shipment
-      let journeyType;
-      let shipParcelNumber;
-      let shipShipmentId;
-      let returnParcelNumber;
-      let returnOrderNumber;
-      let returnShipmentId;
+      let journeyType = await lookupToken('JOURNEY_TYPE');
+      let shipParcelNumber = await lookupToken('SHIP_PARCEL_NUMBER');
+      let shipShipmentId =  await lookupToken('SHIP_SHIPMENT_ID');
+      let returnParcelNumber = await lookupToken('RETURN_PARCEL_NUMBER');
+      let returnOrderNumber =  await lookupToken('RETURN_ORDER_NUMBER');
+      let returnShipmentId =  await lookupToken('RETURN_SHIPMENT_ID');
 
-
-      let search = tokens.find(e => e.JOURNEY_TYPE);
-      journeyType = search.JOURNEY_TYPE;
-      search = tokens.find(e => e.SHIP_SHIPMENT_ID);
-      shipShipmentId = search.SHIP_SHIPMENT_ID;
-      search = tokens.find(e => e.SHIP_PARCEL_NUMBER);
-      shipParcelNumber  = search.SHIP_PARCEL_NUMBER;
-      search = tokens.find(e => e.RETURN_SHIPMENT_ID);
-      returnShipmentId  = search.RETURN_SHIPMENT_ID;
-      search = tokens.find(e => e.RETURN_PARCEL_NUMBER);
-      returnParcelNumber  = search.RETURN_PARCEL_NUMBER;
-      search = tokens.find(e => e.RETURN_ORDER_NUMBER);
-      returnOrderNumber  = search.RETURN_ORDER_NUMBER;
+console.log('============== done check point A')
 
       // DPD Shipment Labels
       if ( labelType === 'DPD' ) {
