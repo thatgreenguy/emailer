@@ -30,6 +30,12 @@ const development = {
     dpdLabels: process.env.DEV_DPD_URL || 'https://integracijos.dpd.lt/ws-mapper-rest/parcelPrint_',
     dpdFilenamePrefix: process.env.DEV_DPD_FILENAME_PREFIX || 'Dlink_DPD_',
     dpdFilenameSuffix: process.env.DEV_DPD_FILENAME_SUFFIX || '.pdf'
+    upsUser: process.env.DEV_UPS_USER || 'testuser1',
+    upsPassword: process.env.DEV_UPS_PASSWORD || 'testpassword1',
+    upsAccount: process.env.DEV_UPS_ACCOUNT || 'testaccesslicensenumber',
+    upsLabels: process.env.DEV_UPS_URL || 'https://wwwcie.ups.com/ship/v1/shipments/labels',
+    upsFilenamePrefix: process.env.DEV_UPS_FILENAME_PREFIX || 'Dlink_UPS_',
+    upsFilenameSuffix: process.env.DEV_UPS_FILENAME_SUFFIX || '.pdf'
   }
 }
 
@@ -60,6 +66,12 @@ const testing = {
     dpdLabels: process.env.TEST_DPD_URL || 'https://integracijos.dpd.lt/ws-mapper-rest/parcelPrint_',
     dpdFilenamePrefix: process.env.TEST_DPD_FILENAME_PREFIX || 'Dlink_DPD_',
     dpdFilenameSuffix: process.env.TEST_DPD_FILENAME_SUFFIX || '.pdf'
+    upsUser: process.env.TEST_UPS_USER || 'testuser1',
+    upsPassword: process.env.TEST_UPS_PASSWORD || 'testpassword1',
+    upsAccount: process.env.TEST_UPS_ACCOUNT || 'testaccesslicensenumber',
+    upsLabels: process.env.TEST_UPS_URL || 'https://wwwcie.ups.com/ship/v1/shipments/labels',
+    upsFilenamePrefix: process.env.TEST_UPS_FILENAME_PREFIX || 'Dlink_UPS_',
+    upsFilenameSuffix: process.env.TEST_UPS_FILENAME_SUFFIX || '.pdf'
   }
 }
 const production = {
@@ -89,6 +101,12 @@ const production = {
     dpdLabels: process.env.LIVE_DPD_URL || 'https://integracijos.dpd.lt/ws-mapper-rest/parcelPrint_',
     dpdFilenamePrefix: process.env.LIVE_DPD_FILENAME_PREFIX || 'Dlink_DPD_',
     dpdFilenameSuffix: process.env.LIVE_DPD_FILENAME_SUFFIX || '.pdf'
+    upsUser: process.env.LIVE_UPS_USER || 'testuser1',
+    upsPassword: process.env.LIVE_UPS_PASSWORD || 'testpassword1',
+    upsAccount: process.env.LIVE_UPS_ACCOUNT || 'testaccesslicensenumber',
+    upsLabels: process.env.LIVE_UPS_URL || 'https://wwwcie.ups.com/ship/v1/shipments/labels',
+    upsFilenamePrefix: process.env.LIVE_UPS_FILENAME_PREFIX || 'Dlink_UPS_',
+    upsFilenameSuffix: process.env.LIVE_UPS_FILENAME_SUFFIX || '.pdf'
   }
 }
 
