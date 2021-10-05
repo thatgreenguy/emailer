@@ -45,7 +45,7 @@ upslabel.get = function ( parcelNumber ) {
               "Code":"PDF"
             }
           },
-          "TrackingNumber":"1Z12345E8791315509"
+          "TrackingNumber": parcelNumber
         }
       };
 
@@ -58,28 +58,26 @@ upslabel.get = function ( parcelNumber ) {
       .then( response => response.json())
       .then( res => {
 
-        // Extract Label Image Data
-        let bindata = atob( res.LabelRecoveryResponse.LabelResults.LabelImage.GraphicImage );
+        // Valid Reponse or error
+        let errorResponse = res.hasOwnProperty('response');
 
-        console.log('Label Data::: ', bindata)
-
+        if ( !errorResponse ) {
+          let data = res.LabelRecoveryResponse.LabelResults.LabelImage.GraphicImage;
+          fs.writeFile( filePath, data, { encoding: 'base64'}, async(err, data) => {
+            if ( err ) throw(`API UPS LABEL ERROR : ${err}`);
+            return;
+          });
+        } else {
+            throw(`API UPS LABEL ERROR : ${JSON.stringify(res.response.errors)}`);
+        }
       })
-      
-
-        //if ( res.ok ) {
-        //  const dest = fs.createWriteStream( fileName  );
-        //  res.body.pipe( dest )
-        //} else {
-        //  let msg = JSON.stringify(res);
-        //  throw(`API UPS LABEL ERROR : ${msg}`)
-        //}
-      // });
+      .then( res => {
         result = {
           status: 'OK',
           fileName: fileName,
           filePath: filePath
         };
-
+      })
 
       resolve(result)
 
