@@ -3,6 +3,7 @@ const log = require('./log')
 const fetch = require('node-fetch');
 const fs = require('fs');
 const dpdlabel = require('./dpdlabel');
+const upslabel = require('./upslabel');
 const helpers = require('./helpers');
 
 const attachments = {}
@@ -19,18 +20,18 @@ attachments.fetch = function ( template, email, tokens ) {
       let templateCheck = template.trim();
       let labelType = email.attachlabel;
 
-console.log('============= check point A : whats in Tokens : ', tokens)
+      log.debug(`Attachment processing: Tokens:: ${JSON.stringify(tokens)}`);
 
-    let lookupToken = async function( token ) 
-    {
-      let v;
-      try {
-        tokens.forEach( (e) => {
-          if ( Object.keys(e) == token ) v = e[token];
-        })
-        return v;
-      } catch(e) {}
-    };
+      let lookupToken = async function( token ) 
+      {
+        let v;
+        try {
+          tokens.forEach( (e) => {
+            if ( Object.keys(e) == token ) v = e[token];
+          })
+          return v;
+        } catch(e) {}
+      };
 
       // We need to know the journey type of this parcel/shipment
       let journeyType = await lookupToken('JOURNEY_TYPE');
@@ -39,8 +40,6 @@ console.log('============= check point A : whats in Tokens : ', tokens)
       let returnParcelNumber = await lookupToken('RETURN_PARCEL_NUMBER');
       let returnOrderNumber =  await lookupToken('RETURN_ORDER_NUMBER');
       let returnShipmentId =  await lookupToken('RETURN_SHIPMENT_ID');
-
-console.log('============== done check point A')
 
       // DPD Shipment Labels
       if ( labelType === 'DPD' ) {
@@ -73,16 +72,16 @@ console.log('============== done check point A')
 
         // Set UPS number according to Journey type
         if ( journeyType === 'RETURN' ) {
-          parcelNumber = returnParcelNumber;
+          parcelNumber = returnShipmentId;
         } else {
-          parcelNumber = shipParcelNumber;
+          parcelNumber = shipShipmentId;
         }
 
         // So long as we have a parcelNumber then go ahead and try to get the UPS Label for it
         if ( parcelNumber !== undefined ) {
 
-          // Get the Label attachment pdf file from DPD
-          let labelData = await dpdlabel.get( parcelNumber );
+          // Get the Label attachment pdf file from UPS
+          let labelData = await upslabel.get( parcelNumber );
 
           // When attachment retrieved okay then include in email send
           if ( labelData.status === 'OK' ) {
