@@ -29,7 +29,7 @@ const development = {
     dpdPassword: process.env.DEV_DPD_PASSWORD || 'testpassword1',
     dpdLabels: process.env.DEV_DPD_URL || 'https://integracijos.dpd.lt/ws-mapper-rest/parcelPrint_',
     dpdFilenamePrefix: process.env.DEV_DPD_FILENAME_PREFIX || 'Dlink_DPD_',
-    dpdFilenameSuffix: process.env.DEV_DPD_FILENAME_SUFFIX || '.pdf'
+    dpdFilenameSuffix: process.env.DEV_DPD_FILENAME_SUFFIX || '.pdf',
     upsUser: process.env.DEV_UPS_USER || 'testuser1',
     upsPassword: process.env.DEV_UPS_PASSWORD || 'testpassword1',
     upsAccount: process.env.DEV_UPS_ACCOUNT || 'testaccesslicensenumber',
@@ -65,7 +65,7 @@ const testing = {
     dpdPassword: process.env.TEST_DPD_PASSWORD || 'testpassword1',
     dpdLabels: process.env.TEST_DPD_URL || 'https://integracijos.dpd.lt/ws-mapper-rest/parcelPrint_',
     dpdFilenamePrefix: process.env.TEST_DPD_FILENAME_PREFIX || 'Dlink_DPD_',
-    dpdFilenameSuffix: process.env.TEST_DPD_FILENAME_SUFFIX || '.pdf'
+    dpdFilenameSuffix: process.env.TEST_DPD_FILENAME_SUFFIX || '.pdf',
     upsUser: process.env.TEST_UPS_USER || 'testuser1',
     upsPassword: process.env.TEST_UPS_PASSWORD || 'testpassword1',
     upsAccount: process.env.TEST_UPS_ACCOUNT || 'testaccesslicensenumber',
@@ -100,7 +100,7 @@ const production = {
     dpdPassword: process.env.LIVE_DPD_PASSWORD || 'testpassword1',
     dpdLabels: process.env.LIVE_DPD_URL || 'https://integracijos.dpd.lt/ws-mapper-rest/parcelPrint_',
     dpdFilenamePrefix: process.env.LIVE_DPD_FILENAME_PREFIX || 'Dlink_DPD_',
-    dpdFilenameSuffix: process.env.LIVE_DPD_FILENAME_SUFFIX || '.pdf'
+    dpdFilenameSuffix: process.env.LIVE_DPD_FILENAME_SUFFIX || '.pdf',
     upsUser: process.env.LIVE_UPS_USER || 'testuser1',
     upsPassword: process.env.LIVE_UPS_PASSWORD || 'testpassword1',
     upsAccount: process.env.LIVE_UPS_ACCOUNT || 'testaccesslicensenumber',
