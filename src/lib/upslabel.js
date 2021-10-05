@@ -15,7 +15,6 @@ upslabel.get = function ( parcelNumber ) {
       let result
       let attachments = []; 
       let headers = {};
-      let body = {};
 
       // Construct url to fetch the Label pdf print for a given Parcel number
       let apiLabelPrint = config.api.upsLabels;
@@ -28,11 +27,12 @@ upslabel.get = function ( parcelNumber ) {
       let filePath = config.app.tmpFolder + fileName;
 
       // Construct Headers and Body for API request
-      headers.Content-Type = 'application/json';
-      headers.Accept = 'application/json';
-      headers.Username = config.api.upsUsername;
-      headers.Password = config.api.upsPassword;
-      headers.AccessLicenseNumber = config.api.upsAccount;
+      headers["Content-Type"] = 'application/json';
+      headers["Accept"] = 'application/json';
+      headers["Username"] = config.api.upsUser;
+      headers["Password"] = config.api.upsPassword;
+      headers["AccessLicenseNumber"] = config.api.upsAccount;
+      headers["charset"] = 'UTF-8';
 
       body = 
       {
@@ -49,53 +49,46 @@ upslabel.get = function ( parcelNumber ) {
         }
       };
 
-      log.warn('--------------------------------------------');
-      console.log('api url : ', apiLabelPrint);
-      console.log('filename : ', fileName);
-      console.log('filepath : ', filePath);
-      console.log('headers : ', headers);
-      console.log('body : ', body);
-      log.warn('--------------------------------------------');
-
-
-      // sendResponse = await transport.sendMail(email)
-      // result = sendResponse.messageId + ' ' + sendResponse.response.substring(0, 99 - sendResponse.messageId.length)
 
       sendResponse = await fetch( apiLabelPrint, {
 	method: 'POST', 
-	body: body,
-	headers: headers 
+	headers: headers, 
+	body: JSON.stringify(body)
 	})
+      .then( response => response.json())
       .then( res => {
 
-        if ( res.ok ) {
-          
-          const dest = fs.createWriteStream( fileName  );
-          res.body.pipe( dest )
+        // Extract Label Image Data
+        let bindata = atob( res.LabelRecoveryResponse.LabelResults.LabelImage.GraphicImage );
 
-        } else {
-          throw(`API UPS LABEL ERROR : ${url}`)
-        }
-      });
+        console.log('Label Data::: ', bindata)
 
-      result = {
-        status: 'OK',
-        fileName: fileName,
-        filePath: filePath
-      };
+      })
+      
+
+        //if ( res.ok ) {
+        //  const dest = fs.createWriteStream( fileName  );
+        //  res.body.pipe( dest )
+        //} else {
+        //  let msg = JSON.stringify(res);
+        //  throw(`API UPS LABEL ERROR : ${msg}`)
+        //}
+      // });
+        result = {
+          status: 'OK',
+          fileName: fileName,
+          filePath: filePath
+        };
+
 
       resolve(result)
 
     } catch ( err )  {
-
       reject(err)
 
     } finally {
- 
       // noop
-
     }
-
   })
 }
 
