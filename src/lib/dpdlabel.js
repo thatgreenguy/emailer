@@ -9,7 +9,52 @@ dpdlabel.get = function ( parcelNumber ) {
 
   return new Promise( async function( resolve, reject ) {
 
+    const readRes = {data: '', error: false};
+
     try {
+
+      const writeAttachmentFile = ( response, fileName ) => {
+        return new Promise((resolve, reject) => {
+console.log('IN write Attachment file')
+
+          if ( response.ok ) {
+            const dest = fs.createWriteStream( fileName  );
+            response.body.pipe( dest )
+            .on('finish', () => resolve())
+            .on('error', () => reject())
+          } else {
+             reject
+          }
+        })
+      }
+
+      const checkAttachmentFile = ( fileName ) => {
+        return new Promise((resolve, reject) => {
+
+console.log('IN check Attachment file')
+        // Confirm we actually got a PDF file and not an error response from the API
+        const source = fs.createReadStream( fileName, {highWaterMark: 25} );
+
+        source.on('data', (chunk) => { 
+          // examine the chunk it should be pdf binary data but if first chink contains following we don't have an attachment label rather an error response from DPD api
+          if ( chunk == '{"status":"err","errlog":' ) readRes.error = true;
+          readRes.data += chunk;
+        });
+
+        source.on('end', () => { 
+console.log('END check attachment file');
+          resolve();
+        });
+
+        source.on('error', (err) => { 
+          readRes.data = err;
+          readRes.error = true;
+          reject();
+        });
+
+        })
+      }
+
 
       // let sendResponse
       let result
@@ -32,28 +77,22 @@ dpdlabel.get = function ( parcelNumber ) {
       console.log('filepath : ', filePath);
       log.warn('--------------------------------------------');
 
-
-      // sendResponse = await transport.sendMail(email)
-      // result = sendResponse.messageId + ' ' + sendResponse.response.substring(0, 99 - sendResponse.messageId.length)
-
       sendResponse = await fetch( apiLabelPrint, {method: 'POST', body })
+      .then( response => writeAttachmentFile(response, fileName) )
+      .then( res => checkAttachmentFile(fileName) )
       .then( res => {
 
-        if ( res.ok ) {
-          
-          const dest = fs.createWriteStream( fileName  );
-          res.body.pipe( dest )
-
+        if ( readRes.error ) {
+          throw(`API DPD LABEL ERROR : ${JSON.stringify(readRes)} `);
         } else {
-          throw(`API DPD LABEL ERROR : ${url}`)
+  
+          result = {
+            status: 'OK',
+            fileName: fileName,
+            filePath: filePath
+          };
         }
       });
-
-      result = {
-        status: 'OK',
-        fileName: fileName,
-        filePath: filePath
-      };
 
       resolve(result)
 
