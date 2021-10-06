@@ -15,7 +15,6 @@ dpdlabel.get = function ( parcelNumber ) {
 
       const writeAttachmentFile = ( response, fileName ) => {
         return new Promise((resolve, reject) => {
-console.log('IN write Attachment file')
 
           if ( response.ok ) {
             const dest = fs.createWriteStream( fileName  );
@@ -31,7 +30,6 @@ console.log('IN write Attachment file')
       const checkAttachmentFile = ( fileName ) => {
         return new Promise((resolve, reject) => {
 
-console.log('IN check Attachment file')
         // Confirm we actually got a PDF file and not an error response from the API
         const source = fs.createReadStream( fileName, {highWaterMark: 25} );
 
@@ -42,7 +40,6 @@ console.log('IN check Attachment file')
         });
 
         source.on('end', () => { 
-console.log('END check attachment file');
           resolve();
         });
 
