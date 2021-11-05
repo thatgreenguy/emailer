@@ -2,11 +2,25 @@ const database  = require('../lib/database');
 
 const rmaitems = {};
 
-rmaitems.get =  async function getRmaItems(rmaNo, rmaType, decimals = -2) {
+const TBS = '<table cellpadding=0 cellspacing=0>';
+const TBE = '</table>';
 
-  let result = await database.getRmaItems( rmaNo , rmaType );
-  let rows = result.result.rows;
-  let list = [];
+const TBRS = '<tr>';
+const TBRE = '</tr>';
+
+const TBCS = '<td>'
+const TBCSA = '<td align="right">';
+const TBCE = '</td>';
+const TBCSEP = '<td><pre>     </pre></td>'
+
+rmaitems.get =  async function getRmaItems(rmaNo, rmaType,  decimals = -2) {
+
+  let dbResult = await database.getRmaItems( rmaNo , rmaType );
+  let rows = dbResult.result.rows;
+  let value = '';
+  let result = {};  
+
+  result.length = rows.length;
 
   for( let i = 0; i < rows.length; i++ ) {
 
@@ -18,13 +32,36 @@ rmaitems.get =  async function getRmaItems(rmaNo, rmaType, decimals = -2) {
       qty = '' + rows[i][5];    
     }
 
-    let line = `${item}     ${qty.slice(0, decimals)}`;
-    list.push( line );
+    if ( result.length == 1 ) {
+  
+      // Single RMA shows just the Item/Product code
+      value = item; 
+
+    } else {
+
+      // Mass RMA shows table of Quantity with Item/Product Code
+      let trimQty = `${qty.slice(0, decimals)}`;
+      let paddedQty = trimQty.padStart((10 - trimQty.length), ' ');
+
+      if ( i == 0 ) value = `${TBS}`;
+      value += `${TBRS}${TBCSA}${paddedQty}${TBCE}${TBCSEP}${TBCS}${item}${TBCE}${TBRE}`;
+
+
+    }
   }
 
-  return list;
+  if ( result.length > 1 ) value += `${TBE}`;
+  result.value = value;
+
+  return result;
 
 }
 
 module.exports = rmaitems;
 
+// <table>
+// <tr><td align="right">1</td><td><pre>     </pre></td><td>ITEMHERE</td></tr>
+// <tr><td  align="right">666666</td><td><pre>     </pre></td><td>ITEMHERE</TD></tr>
+// <tr><td  align="right">22</td><td><pre>     </pre></td><td>ITEMHERE</td></tr>
+// <tr><td  align="right">333</td><td><pre>     </pre></td><td>ITEMHERE</TD></tr>
+// </table>

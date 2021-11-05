@@ -13,6 +13,7 @@ async function runtests(rmano, rmatyp) {
 runtests('21000669', 'A1');
 runtests('21000766', 'A7');
 runtests('21099766', 'A7');
+runtests('21000795', 'A2');
 
 
 

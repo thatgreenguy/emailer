@@ -4,6 +4,7 @@ const log = require('./log')
 const database = require('./database')
 const validate = require('./validate')
 const systemtokens = require('./systemtokens')
+const rmaitems = require('./rmaitems')
 
 const compose = {}
 
@@ -43,6 +44,10 @@ compose.email = function(id, templateName, recipient, languageCode, attachmentTe
     let validated
     let email
     let result
+    let rmaItemList
+
+    let rmaNumber;
+    let rmaType;
 
     function _tokenised(emailTokens) {
 
@@ -54,6 +59,9 @@ compose.email = function(id, templateName, recipient, languageCode, attachmentTe
         let result = {}
         let tokenName = entry[3].trim()
         let tokenValue = entry[4].trim()
+
+        if ( tokenName == 'RMA_NUMBER' ) rmaNumber = tokenValue;
+        if ( tokenName == 'RMA_TYPE' ) rmaType = tokenValue;
         result[tokenName] = tokenValue
 
         return result
@@ -89,7 +97,7 @@ compose.email = function(id, templateName, recipient, languageCode, attachmentTe
 
     }
 
-    function _assemble( emailConfiguration, emailTokens ) {
+    function _assemble( emailConfiguration, emailTokens, rmaItemList ) {
 
       let email = {} 
       let tmp = []
@@ -111,14 +119,14 @@ compose.email = function(id, templateName, recipient, languageCode, attachmentTe
 
       }
 
-      function _deTokenise( text, emailTokens ) {
+      function _deTokenise( text, emailTokens, rmaItemList ) {
 
         let tokens = emailTokens.map( function( el, index ) {
 
           let token = Object.keys(el)[0]
           let value = Object.values(el)[0]
 
-          log.debug(`Token: ${token} and value: ${value}`)
+          if ( token === 'ITEM_NUMBER' ) value = rmaItemList;
 
           token = _regexify( token )
           text = text.replace( token, value )
@@ -154,9 +162,8 @@ compose.email = function(id, templateName, recipient, languageCode, attachmentTe
       // Scan and replace any Tokens embedded in Email Subject and/or Body with data values
 
       emailTokens = systemtokens.add( emailTokens ) 
-
-      email.subject = _deTokenise( email.subject, emailTokens )
-      email.html = _deTokenise( email.html, emailTokens )
+      email.subject = _deTokenise( email.subject, emailTokens, rmaItemList )
+      email.html = _deTokenise( email.html, emailTokens, rmaItemList )
 
       log.verbose(`Composed Email : ${JSON.stringify(email, null, '\t')}`)
 
@@ -183,7 +190,8 @@ compose.email = function(id, templateName, recipient, languageCode, attachmentTe
         dbResult = await database.readEmailTokens( id )
         emailTokens = _tokenised(dbResult) 
 
-        email = _assemble( emailConfiguration, emailTokens )
+        rmaItemList = await rmaitems.get( rmaNumber, rmaType );
+        email = _assemble( emailConfiguration, emailTokens, rmaItemList.value )
 
       } else {
         log.verbose(`Missing Email configuration for Template: ${template} and Language: ${language}`)
