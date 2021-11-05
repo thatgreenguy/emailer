@@ -391,6 +391,39 @@ database.getEmailTemplateBlob = function(txky) {
   }) 
 }
 
+database.getRmaItems = function(rmaNo, rmaType) {
+
+  return new Promise(async function(resolve, reject) {
+
+    let dbConnection
+
+    try {
+      let sql = `select RDRLLN, RDRMAST, RDLITM, RDUORG, RDCPIL, RDTRQT  from ${SCHEMA}.F40051 
+        where RDRORN = '${rmaNo}' and RDRCTO = '${rmaType}' `
+      let binds = []
+      let options = {}
+      log.debug(`getRMAItems : SQL : ${sql}`)
+
+      dbConnection = await oracledb.getConnection( credentials )
+      let result = await dbConnection.execute( sql, binds, options )
+
+      resolve( {result} )
+      
+    } catch ( err ) {
+      reject( err )
+
+    } finally {
+      if ( dbConnection ) {
+        try {
+          await dbConnection.close()
+
+        } catch ( err ) {
+          log.error(`CONST.MESSAGES.ERROR.CONNECTION_CLOSE_FAILED $(err)`)
+        }
+      }
+    }
+  }) 
+}
 
 
 module.exports = database
