@@ -55,16 +55,19 @@ async function processQueue( queued ) {
     let sendResponse
     let processed = PROCESS_ERROR
     let emailTemplateText = '';
+    let actualTemplate;
 
     try {
 
       log.info( `Start processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language}`)
 
       result = await database.updateQueueSending( id, template, recipient, language )
-      let et = await emailTemplate.get( template );  
+      let et = await emailTemplate.get( template, language );  
       emailTemplateText = et.text;
+      actualTemplate = et.actualTemplate;     // Will be template or Default template name
 
-      result = await compose.email( id, template, recipient, language, emailTemplateText )
+      //     result = await compose.email( id, template, recipient, language, emailTemplateText )
+      result = await compose.email( id, actualTemplate, recipient, language, emailTemplateText )
 
       log.verbose( `Composed email : ${JSON.stringify(result, null, '\t')}`)
 
