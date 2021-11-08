@@ -56,15 +56,25 @@ async function processQueue( queued ) {
     let processed = PROCESS_ERROR
     let emailTemplateText = '';
     let actualTemplate;
+    let newstyleTemplate = true;
 
     try {
 
       log.info( `Start processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language}`)
 
       result = await database.updateQueueSending( id, template, recipient, language )
-      let et = await emailTemplate.get( template, language );  
-      emailTemplateText = et.text;
-      actualTemplate = et.actualTemplate;     // Will be template or Default template name
+
+      // Skip Attachment Template check/fetch if NBDS for now. Do not want New Default Template for NBDS yet
+      if ( template == 'NBDSGA    ' || template == 'NBDSCA    ' || template == 'NBDSCH    ' || template == 'NBDSRN    ' ) newstyleTemplate = false;
+
+      if ( newstyleTemplate ) {      
+        let et = await emailTemplate.get( template, language );  
+        emailTemplateText = et.text;
+        actualTemplate = et.actualTemplate;                        // Will be template or Default template name
+        if ( actualTemplate !== template ) language = 'E'          // If Default Template in play force language to 'E' 
+      } else {
+        actualTemplate = template;
+      }
 
       //     result = await compose.email( id, template, recipient, language, emailTemplateText )
       result = await compose.email( id, actualTemplate, recipient, language, emailTemplateText )
