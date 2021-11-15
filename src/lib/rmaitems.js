@@ -2,16 +2,15 @@ const database  = require('../lib/database');
 
 const rmaitems = {};
 
-const TBS = '<table cellpadding=0 cellspacing=0>';
+const TBS = '<table>';
 const TBE = '</table>';
 
 const TBRS = '<tr>';
 const TBRE = '</tr>';
 
-const TBCS = '<td>'
-const TBCSA = '<td align="right">';
+const TBCS = '<td width="33%">'
+const TBCSA = '<td align="right" width="33%">';
 const TBCE = '</td>';
-const TBCSEP = '<td><pre>     </pre></td>'
 
 rmaitems.get =  async function getRmaItems(rmaNo, rmaType,  decimals = -2) {
 
@@ -44,7 +43,7 @@ rmaitems.get =  async function getRmaItems(rmaNo, rmaType,  decimals = -2) {
       let paddedQty = trimQty.padStart((10 - trimQty.length), ' ');
 
       if ( i == 0 ) value = `${TBS}`;
-      value += `${TBRS}${TBCSA}${paddedQty}${TBCE}${TBCSEP}${TBCS}${item}${TBCE}${TBRE}`;
+      value += `${TBRS}${TBCSA}${paddedQty}${TBCE}${TBCS} ${TBCE}${TBCS}${item}${TBCE}${TBRE}`;
 
 
     }
