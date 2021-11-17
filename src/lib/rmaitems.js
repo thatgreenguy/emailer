@@ -8,8 +8,8 @@ const TBE = '</table>';
 const TBRS = '<tr>';
 const TBRE = '</tr>';
 
-const TBCS = '<td width="33%">'
-const TBCSA = '<td align="right" width="33%">';
+const TBCS = '<td align="left "width="45%">'
+const TBCSA = '<td width="10%">';
 const TBCE = '</td>';
 
 rmaitems.get =  async function getRmaItems(rmaNo, rmaType,  decimals = -2) {
@@ -43,7 +43,7 @@ rmaitems.get =  async function getRmaItems(rmaNo, rmaType,  decimals = -2) {
       let paddedQty = trimQty.padStart((10 - trimQty.length), ' ');
 
       if ( i == 0 ) value = `${TBS}`;
-      value += `${TBRS}${TBCSA}${paddedQty}${TBCE}${TBCS} ${TBCE}${TBCS}${item}${TBCE}${TBRE}`;
+      value += `${TBRS}${TBCS}${item}${TBCE}${TBCSA} ${TBCE}${TBCS}${trimQty}${TBCE}${TBRE}`;
 
 
     }
@@ -64,3 +64,8 @@ module.exports = rmaitems;
 // <tr><td  align="right">22</td><td><pre>     </pre></td><td>ITEMHERE</td></tr>
 // <tr><td  align="right">333</td><td><pre>     </pre></td><td>ITEMHERE</TD></tr>
 // </table>
+
+
+
+
+

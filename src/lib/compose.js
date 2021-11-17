@@ -6,6 +6,8 @@ const validate = require('./validate')
 const systemtokens = require('./systemtokens')
 const rmaitems = require('./rmaitems')
 
+const OUTLOOK = '<!--[if mso]> <style type="text/css"> body, table, td {font-size: 2, font-family: Arial, Helvetica, sans-serif !important;} </style><![endif]-->';
+
 const compose = {}
 
 /**
@@ -145,7 +147,7 @@ compose.email = function(id, templateName, recipient, languageCode, attachmentTe
       email.cc =  _extractConfigData( CONST.JDE.MAIL_STRUCTURE.CC, ', ')
       email.bcc =  _extractConfigData( CONST.JDE.MAIL_STRUCTURE.BCC, ', ')
       email.subject = _extractConfigData( CONST.JDE.MAIL_STRUCTURE.SUBJECT , '')
-      email.html = _extractConfigData( CONST.JDE.MAIL_STRUCTURE.BODY_HEAD, '')
+      email.html = OUTLOOK + _extractConfigData( CONST.JDE.MAIL_STRUCTURE.BODY_HEAD, '')
       email.html += _extractConfigData( CONST.JDE.MAIL_STRUCTURE.BODY_BODY, '')
       email.html += _extractConfigData( CONST.JDE.MAIL_STRUCTURE.BODY_FOOT, '')
       email.html += _extractConfigData( CONST.JDE.MAIL_STRUCTURE.BODY_LEGAL, '')
