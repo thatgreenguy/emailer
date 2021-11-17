@@ -11,6 +11,9 @@ const emailTemplate = require('./lib/emailTemplate')
 const PROCESSED = CONST.JDE.MAIL_CONFIG.PROCESSED
 const PROCESS_ERROR = CONST.JDE.MAIL_CONFIG.PROCESS_ERROR
 
+const DEFAULT_TEMPLATE = 'DEFAULT E ';
+
+
 let processStatus = 0
 
 let check = 0
@@ -71,10 +74,20 @@ async function processQueue( queued ) {
         let et = await emailTemplate.get( template, language );  
         emailTemplateText = et.text;
         actualTemplate = et.actualTemplate;                        // Will be template or Default template name
-        if ( actualTemplate !== template ) language = 'E'          // If Default Template in play force language to 'E' 
       } else {
         actualTemplate = template;
       }
+
+      // DEFAULT E template name is used for any template not found. When dealing with DEFAULT E set language to E
+      if ( actualTemplate === DEFAULT_TEMPLATE ) language = 'E'          // If Default Template in play force language to 'E' 
+
+
+console.log('**************************************************************')
+console.log('Template: ', template)
+console.log('Actual Template: ', actualTemplate)
+console.log('language: ', language)
+console.log('**************************************************************')
+
 
       //     result = await compose.email( id, template, recipient, language, emailTemplateText )
       result = await compose.email( id, actualTemplate, recipient, language, emailTemplateText )
