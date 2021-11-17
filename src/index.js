@@ -81,14 +81,6 @@ async function processQueue( queued ) {
       // DEFAULT E template name is used for any template not found. When dealing with DEFAULT E set language to E
       if ( actualTemplate === DEFAULT_TEMPLATE ) language = 'E'          // If Default Template in play force language to 'E' 
 
-
-console.log('**************************************************************')
-console.log('Template: ', template)
-console.log('Actual Template: ', actualTemplate)
-console.log('language: ', language)
-console.log('**************************************************************')
-
-
       //     result = await compose.email( id, template, recipient, language, emailTemplateText )
       result = await compose.email( id, actualTemplate, recipient, language, emailTemplateText )
 
