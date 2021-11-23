@@ -68,7 +68,11 @@ async function processQueue( queued ) {
       result = await database.updateQueueSending( id, template, recipient, language )
 
       // Skip Attachment Template check/fetch if NBDS for now. Do not want New Default Template for NBDS yet
-      if ( template == 'NBDSGA    ' || template == 'NBDSCA    ' || template == 'NBDSCH    ' || template == 'NBDSRN    ' ) newstyleTemplate = false;
+      if ( template == 'NBDSGA    ' || template == 'NBDSCA    ' || template == 'NBDSCH    ' || template == 'NBDSRN    ' ) {
+        newstyleTemplate = false;
+      } else {
+        newstyleTemplate = true;
+      }
 
       if ( newstyleTemplate ) {      
         let et = await emailTemplate.get( template, language );  
