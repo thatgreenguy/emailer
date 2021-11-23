@@ -9,6 +9,8 @@ upslabel.get = function ( parcelNumber ) {
 
   return new Promise( async function( resolve, reject ) {
 
+    let trimmedParcelNumber = parcelNumber.trim();
+
     try {
 
       // let sendResponse
@@ -21,7 +23,7 @@ upslabel.get = function ( parcelNumber ) {
 
       // Construct attachment Pdf filename
       let fileName = config.api.upsFilenamePrefix;
-      fileName += parcelNumber;
+      fileName += trimmedParcelNumber;
       fileName += config.api.upsFilenameSuffix;
 
       let filePath = config.app.tmpFolder + fileName;
@@ -45,7 +47,7 @@ upslabel.get = function ( parcelNumber ) {
               "Code":"PDF"
             }
           },
-          "TrackingNumber": parcelNumber
+          "TrackingNumber": trimmedParcelNumber
         }
       };
 

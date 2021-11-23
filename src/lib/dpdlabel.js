@@ -9,8 +9,9 @@ dpdlabel.get = function ( parcelNumber ) {
 
   return new Promise( async function( resolve, reject ) {
 
+    let trimmedParcelNumber = parcelNumber.trim();;
     const readRes = {data: '', error: false};
-
+    
     try {
 
       const writeAttachmentFile = ( response, fileName ) => {
@@ -59,11 +60,11 @@ dpdlabel.get = function ( parcelNumber ) {
       let body = {};
 
       // Construct url to fetch the Label pdf print for a given Parcel number
-      let apiLabelPrint = config.api.dpdLabels + '?username=' + config.api.dpdUser + '&password=' + config.api.dpdPassword + '&parcels=' + parcelNumber + '&printType=pdf';
+      let apiLabelPrint = config.api.dpdLabels + '?username=' + config.api.dpdUser + '&password=' + config.api.dpdPassword + '&parcels=' + trimmedParcelNumber + '&printType=pdf';
 
       // Construct attachment Pdf filename
       let fileName = config.api.dpdFilenamePrefix;
-      fileName += parcelNumber;
+      fileName += trimmedParcelNumber;
       fileName += config.api.dpdFilenameSuffix;
 
       let filePath = config.app.tmpFolder + fileName;
