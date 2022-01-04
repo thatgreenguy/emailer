@@ -103,7 +103,7 @@ database.updateQueueSending = function( id, processedFlag, errorMessage, templat
   }) 
 }
 
-database.updateQueue = function( id, processedFlag, errorMessage, template ) {
+database.updateQueue = function( id, processedFlag, errorMessage, template, errorCount ) {
 
   return new Promise(async function(resolve, reject) {
 
@@ -114,6 +114,10 @@ database.updateQueue = function( id, processedFlag, errorMessage, template ) {
       let datestamp = moment()
       let timestamp = datestamp.format('h:mm:ss').split(':').join('')  
       let julianDate = helpers.formatAsJdeJulian(datestamp)
+
+      let f56cm33Status = 'C';
+      if ( processedFlag === 'E' ) f56cm33Status = 'B';
+
 
       // Ensure internal error information or response from gmail API does not exceed space we have to store error message text
       if ( errorMessage.length >= 100 ) errorMessage = errorMessage.substring(0, 100)
@@ -130,7 +134,7 @@ database.updateQueue = function( id, processedFlag, errorMessage, template ) {
           set ECEDSP = '${processedFlag}', ECUKEMES = :1 , 
           ECDTSE = ${julianDate}, ECY55TDA2 = ${timestamp},
           ECUPMJ = ${julianDate}, ECUPMT = ${timestamp},
-          ECPID = '${config.app.name}', ECJOBN = 'NODE', ECUSER = 'DOCKER' 
+          ECPID = '${config.app.name}', ECJOBN = 'NODE', ECUSER = 'DOCKER', ECY55ERRC = ${errorCount}, ECY55EDSP1 = '${f56cm33Status}' 
           where ECUKID = ${id} and EC55NBES = '${READY}' and ECEDSP <> '${PROCESSED}'`
 
       } else {
@@ -138,7 +142,7 @@ database.updateQueue = function( id, processedFlag, errorMessage, template ) {
         sql = `update ${SCHEMA}.F55NB901
           set ECEDSP = '${processedFlag}', ECUKEMES = :1 , 
           ECUPMJ = ${julianDate}, ECUPMT = ${timestamp},
-          ECPID = '${config.app.name}', ECJOBN = 'NODE', ECUSER = 'DOCKER' 
+          ECPID = '${config.app.name}', ECJOBN = 'NODE', ECUSER = 'DOCKER', ECY55ERRC = ${errorCount}, ECY55EDSP1 = '${f56cm33Status}' 
           where ECUKID = ${id} and EC55NBES = '${READY}' and ECEDSP <> '${PROCESSED}'`
 
       }
@@ -425,5 +429,60 @@ database.getRmaItems = function(rmaNo, rmaType) {
   }) 
 }
 
+database.logEmailResponse = function( id, processedFlag, errorMessage, template, errorCount ) {
+
+  return new Promise(async function(resolve, reject) {
+
+    let dbConnection
+
+    try {
+
+      let datestamp = moment()
+      let timestamp = datestamp.format('h:mm:ss').split(':').join('')  
+      let julianDate = helpers.formatAsJdeJulian(datestamp)
+
+      // Ensure internal error information or response from gmail API does not exceed space we have to store error message text
+      if ( errorMessage.length >= 500 ) errorMessage = errorMessage.substring(0, 500)
+
+      log.debug(`feedback message: ${errorMessage} and: ${errorMessage.length}`)
+
+      // Template dictates whether we update the send date/time or not
+      // Only update those columns when dealing with a Reminder Email Template
+      let sql = ''
+
+      let f56cm33Status = 'C';
+      if ( processedFlag === 'E' ) f56cm33Status = 'B';
+ 
+      sql = `insert into crpdta.f56cm33 (SRUKID, SRy55ERRC, SRIMAG, SRY55EDSP1, SRECDE, SRS74ERDC, SR79AGHGT, SRUPMJ, SRUPMT, SRPID, SRUSER, SRJOBN) 
+          VALUES( ${id} , ${errorCount}, 0, '${f56cm33Status}', '', '${errorMessage}', '', ${julianDate}, ${timestamp}, '${config.app.name}', 'DOCKER', 'NODE'   )`;
+
+      log.debug(`logEmailResponse : SQL : ${sql}`)
+
+      let binds = [ ]
+      let options = { autoCommit: true }
+
+      dbConnection = await oracledb.getConnection( credentials )
+
+      let result = await dbConnection.execute( sql, binds, options )
+
+      resolve( {result} )
+      
+    } catch ( err ) {
+      reject( err )
+
+    } finally {
+      if ( dbConnection ) {
+        try {
+          await dbConnection.close()
+
+        } catch ( err ) {
+          log.error(`CONST.MESSAGES.ERROR.CONNECTION_CLOSE_FAILED $(err)`)
+        }
+      }
+    }
+  }) 
+}
 
 module.exports = database
+
+

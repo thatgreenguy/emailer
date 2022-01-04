@@ -61,6 +61,8 @@ async function processQueue( queued ) {
     let actualTemplate;
     let newstyleTemplate = true;
 
+    let errorCount = queuedMail[17]
+
     try {
 
       log.info( `Start processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language}`)
@@ -129,9 +131,10 @@ async function processQueue( queued ) {
 
     } finally {
 
-      // Error or not last action is to update the Email queue item as Processed or Errored
-
-      await database.updateQueue( id, processed, sendResponse, template )
+      // Error or not last action is to update the Email queue item as Processed or Errored and log error in F56CM33
+      await database.logEmailResponse( id, processed, sendResponse, actualTemplate, errorCount);
+      errorCount++;
+      await database.updateQueue( id, processed, sendResponse, template, errorCount )
       log.info( `Finished processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language} - Result:: ${sendResponse}`)
 
     }
