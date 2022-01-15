@@ -452,8 +452,8 @@ database.logEmailResponse = function( id, processedFlag, errorMessage, template,
 
       let f56cm33Status = 'C';
       if ( processedFlag === 'E' ) f56cm33Status = 'B';
- 
-      sql = `insert into crpdta.f56cm33 (SRUKID, SRy55ERRC, SRIMAG, SRY55EDSP1, SRECDE, SRS74ERDC, SR79AGHGT, SRUPMJ, SRUPMT, SRPID, SRUSER, SRJOBN) 
+
+      sql = `insert into ${SCHEMA}.f56cm33 (SRUKID, SRy55ERRC, SRIMAG, SRY55EDSP1, SRECDE, SRS74ERDC, SR79AGHGT, SRUPMJ, SRUPMT, SRPID, SRUSER, SRJOBN) 
           VALUES( ${id} , ${errorCount}, 0, '${f56cm33Status}', '', '${errorMessage}', '', ${julianDate}, ${timestamp}, '${config.app.name}', 'DOCKER', 'NODE'   )`;
 
       log.debug(`logEmailResponse : SQL : ${sql}`)
