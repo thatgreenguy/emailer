@@ -1,13 +1,10 @@
 const database  = require('../lib/database');
-
 const rmaitems = {};
 
 const TBS = '<table>';
 const TBE = '</table>';
-
 const TBRS = '<tr>';
 const TBRE = '</tr>';
-
 const TBCS = '<td align="left "width="45%">'
 const TBCSA = '<td width="10%">';
 const TBCE = '</td>';
@@ -34,7 +31,13 @@ rmaitems.get =  async function getRmaItems(rmaNo, rmaType,  decimals = -2) {
     if ( result.length == 1 ) {
   
       // Single RMA shows just the Item/Product code
-      value = item; 
+      //value = item; 
+
+      // Decided to show Quantity always including with single line Mass RMA and Single RMAs
+      let trimQty = `${qty.slice(0, decimals)}`;
+      value = `${TBS}`;
+      value += `${TBRS}${TBCS}${item}${TBCE}${TBCSA} ${TBCE}${TBCS}${trimQty}${TBCE}${TBRE}`;
+      value += `${TBE}`;
 
     } else {
 
@@ -44,8 +47,6 @@ rmaitems.get =  async function getRmaItems(rmaNo, rmaType,  decimals = -2) {
 
       if ( i == 0 ) value = `${TBS}`;
       value += `${TBRS}${TBCS}${item}${TBCE}${TBCSA} ${TBCE}${TBCS}${trimQty}${TBCE}${TBRE}`;
-
-
     }
   }
 
