@@ -403,7 +403,7 @@ database.getRmaItems = function(rmaNo, rmaType) {
 
     try {
       let sql = `select RDRLLN, RDRMAST, RDLITM, RDUORG, RDCPIL, RDTRQT  from ${SCHEMA}.F40051 
-        where RDRORN = '${rmaNo}' and RDRCTO = '${rmaType}' `
+        where RDRORN = '${rmaNo}' and RDRCTO = '${rmaType}' ORDER BY RDRLLN`
       let binds = []
       let options = {}
       log.debug(`getRMAItems : SQL : ${sql}`)
