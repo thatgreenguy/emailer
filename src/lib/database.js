@@ -429,6 +429,39 @@ database.getRmaItems = function(rmaNo, rmaType) {
   }) 
 }
 
+database.singleOrMassRma = function(rmaType) {
+
+  return new Promise(async function(resolve, reject) {
+
+    let dbConnection
+
+    try {
+      let sql = `select drsphd from crpctl.f0005 where drsy = '00' and drrt = 'DT' and drky = '        ${rmaType}'`
+      let binds = []
+      let options = {}
+      log.debug(`singleOrMassRma : SQL : ${sql}`)
+
+      dbConnection = await oracledb.getConnection( credentials )
+      let result = await dbConnection.execute( sql, binds, options )
+
+      resolve( {result} )
+      
+    } catch ( err ) {
+      reject( err )
+
+    } finally {
+      if ( dbConnection ) {
+        try {
+          await dbConnection.close()
+
+        } catch ( err ) {
+          log.error(`CONST.MESSAGES.ERROR.CONNECTION_CLOSE_FAILED $(err)`)
+        }
+      }
+    }
+  }) 
+}
+
 database.logEmailResponse = function( id, processedFlag, errorMessage, template, errorCount ) {
 
   return new Promise(async function(resolve, reject) {
