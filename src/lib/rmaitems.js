@@ -1,4 +1,5 @@
 const database  = require('../lib/database');
+const massrma  = require('../lib/massrma');
 const rmaitems = {};
 
 const TBS = '<table>';
@@ -10,6 +11,9 @@ const TBCSA = '<td width="10%">';
 const TBCE = '</td>';
 
 rmaitems.get =  async function getRmaItems(rmaNo, rmaType,  decimals = -2) {
+
+  // RMA Type Special Handling code hods M for Mass RMA otherwise Single
+  let identifyResult = await massrma.identify( rmaType );
 
   let dbResult = await database.getRmaItems( rmaNo , rmaType );
   let rows = dbResult.result.rows;
@@ -28,25 +32,48 @@ rmaitems.get =  async function getRmaItems(rmaNo, rmaType,  decimals = -2) {
       qty = '' + rows[i][5];    
     }
 
+    // RMA Type Special Handling code identifies an RMA as Single or Mass for the purposes 
+    // of displaying ITEM + QTY or just ITEM
     if ( result.length == 1 ) {
   
-      // Single RMA shows just the Item/Product code
-      //value = item; 
+      if ( identifyResult.rmaType === 'M' ) {
 
-      // Decided to show Quantity always including with single line Mass RMA and Single RMAs
-      let trimQty = `${qty.slice(0, decimals)}`;
-      value = `${TBS}`;
-      value += `${TBRS}${TBCS}${item}${TBCE}${TBCSA} ${TBCE}${TBCS}${trimQty}${TBCE}${TBRE}`;
-      value += `${TBE}`;
+        // Only 1 line on RMA but Rma Type identifies it as a Mass RMA so include Quantity
+        // Mass RMA shows table of Item/Product codes with Quantity 
+        let trimQty = `${qty.slice(0, decimals)}`;
+        value = `${TBS}`;
+        value += `${TBRS}${TBCS}${item}${TBCE}${TBCSA} ${TBCE}${TBCS}${trimQty}${TBCE}${TBRE}`;
+        value += `${TBE}`;
+
+      } else {
+
+        // Single RMA shows just the Item/Product code
+        value = item; 
+
+      } 
 
     } else {
 
-      // Mass RMA shows table of Quantity with Item/Product Code
+      // Trim and Pad Qty in case its required for output
       let trimQty = `${qty.slice(0, decimals)}`;
       let paddedQty = trimQty.padStart((10 - trimQty.length), ' ');
 
-      if ( i == 0 ) value = `${TBS}`;
-      value += `${TBRS}${TBCS}${item}${TBCE}${TBCSA} ${TBCE}${TBCS}${trimQty}${TBCE}${TBRE}`;
+      // When handling a multiline RMA the UDC setup option still allows for Item display only 
+      // Although unlikely to be used in real life
+      if ( identifyResult.rmaType === 'M' ) {
+
+        // Mass RMA shows table of Item/Product codes with Quantity 
+        if ( i == 0 ) value = `${TBS}`;
+        value += `${TBRS}${TBCS}${item}${TBCE}${TBCSA} ${TBCE}${TBCS}${trimQty}${TBCE}${TBRE}`;
+
+      } else {
+
+        // Mass RMA shows table of Item/Product codes without Quantity
+        if ( i == 0 ) value = `${TBS}`;
+        value += `${TBRS}${TBCS}${item}${TBCE}${TBCSA} ${TBCE}${TBCS} ${TBCE}${TBRE}`;
+
+      }
+
     }
   }
 

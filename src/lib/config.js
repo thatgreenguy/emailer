@@ -22,7 +22,8 @@ const development = {
     host: process.env.DEV_MAIL_HOST,
     port: process.env.DEV_MAIL_PORT,
     user: process.env.DEV_MAIL_USER,
-    password: process.env.DEV_MAIL_PASSWORD
+    password: process.env.DEV_MAIL_PASSWORD,
+    security: ( process.env.DEV_MAIL_SECURITY  === 'true' ) ? 1 : 0
   },
   api: {
     dpdUser: process.env.DEV_DPD_USER || 'testuser1',
@@ -58,7 +59,8 @@ const testing = {
     host: process.env.TEST_MAIL_HOST,
     port: process.env.TEST_MAIL_PORT,
     user: process.env.TEST_MAIL_USER,
-    password: process.env.TEST_MAIL_PASSWORD
+    password: process.env.TEST_MAIL_PASSWORD,
+    security: ( process.env.TEST_MAIL_SECURITY  === 'true' ) ? 1 : 0
   },
   api: {
     dpdUser: process.env.TEST_DPD_USER || 'testuser1',
@@ -93,7 +95,8 @@ const production = {
     host: process.env.LIVE_MAIL_HOST,
     port: process.env.LIVE_MAIL_PORT,
     user: process.env.LIVE_MAIL_USER,
-    password: process.env.LIVE_MAIL_PASSWORD
+    password: process.env.LIVE_MAIL_PASSWORD,
+    security: ( process.env.LIVE_MAIL_SECURITY  === 'true' ) ? 1 : 0
   },
   api: {
     dpdUser: process.env.LIVE_DPD_USER || 'testuser1',

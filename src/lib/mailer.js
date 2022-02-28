@@ -5,7 +5,7 @@ const nodemailer = require('nodemailer')
 const transport = nodemailer.createTransport({
   host: config.mail.host,
   port: config.mail.port,
-  secure: true,
+  secure: config.mail.security,
   auth: {
       user: config.mail.user,
       pass: config.mail.password
