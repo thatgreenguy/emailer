@@ -5,7 +5,6 @@ massrma.identify =  async function getRmaItems(rmaType) {
 
   let dbResult = await database.singleOrMassRma( rmaType );
   let result = {}; 
-console.log(dbResult)
   result.rowCount = dbResult.result.rows.length;
   if ( result.rowCount > 0 ) {
       result.success = true;
