@@ -118,7 +118,6 @@ database.updateQueue = function( id, processedFlag, errorMessage, template, erro
       let f56cm33Status = 'C';
       if ( processedFlag === 'E' ) f56cm33Status = 'B';
 
-
       // Ensure internal error information or response from gmail API does not exceed space we have to store error message text
       if ( errorMessage.length >= 100 ) errorMessage = errorMessage.substring(0, 100)
 
@@ -131,7 +130,7 @@ database.updateQueue = function( id, processedFlag, errorMessage, template, erro
       if ( template === 'NBDSRN    '  ) {
 
         sql = `update ${SCHEMA}.F55NB901
-          set ECEDSP = '${processedFlag}', ECUKEMES = :1 , 
+          set ECEDSP = '${processedFlag}', ECUKEMES = '${errorMessage}' , 
           ECDTSE = ${julianDate}, ECY55TDA2 = ${timestamp},
           ECUPMJ = ${julianDate}, ECUPMT = ${timestamp},
           ECPID = '${config.app.name}', ECJOBN = 'NODE', ECUSER = 'DOCKER', ECY55ERRC = ${errorCount}, ECY55EDSP1 = '${f56cm33Status}' 
@@ -140,7 +139,7 @@ database.updateQueue = function( id, processedFlag, errorMessage, template, erro
       } else {
  
         sql = `update ${SCHEMA}.F55NB901
-          set ECEDSP = '${processedFlag}', ECUKEMES = :1 , 
+          set ECEDSP = '${processedFlag}', ECUKEMES = '${errorMessage}' , 
           ECUPMJ = ${julianDate}, ECUPMT = ${timestamp},
           ECPID = '${config.app.name}', ECJOBN = 'NODE', ECUSER = 'DOCKER', ECY55ERRC = ${errorCount}, ECY55EDSP1 = '${f56cm33Status}' 
           where ECUKID = ${id} and EC55NBES = '${READY}' and ECEDSP <> '${PROCESSED}'`
@@ -149,7 +148,7 @@ database.updateQueue = function( id, processedFlag, errorMessage, template, erro
 
       log.debug(`updateQueue : SQL : ${sql}`)
 
-      let binds = [ errorMessage ]
+      let binds = [ ]
       let options = { autoCommit: true }
 
       dbConnection = await oracledb.getConnection( credentials )
