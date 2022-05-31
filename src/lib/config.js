@@ -88,7 +88,7 @@ const production = {
     systemDateSeparator: process.env.LIVE_SYSTEM_DATE_SEPARATOR || '-',
     logLevel: process.env.LIVE_LOG_LEVEL || 'info',
     pollingInterval: parseInt(process.env.LIVE_POLLING_INTERVAL) || 15000,
-    pollingIntervalRetry: parseInt(process.env.LIVE_POLLING_INTERVAL_RETRY) || 15000,
+    pollingIntervalRetry: parseInt(process.env.LIVE_POLLING_INTERVAL_RETRY) || 900000,
     retryLimit: parseInt(process.env.LIVE_RETRY_LIMIT) || 10,
     retryPreviousDays: parseInt(process.env.LIVE_RETRY_PREVIOUS_DAYS) || 1,
     overrideAllRecipientsTo: process.env.LIVE_OVERRIDE_ALL_RECIPIENTS_TO || '',
