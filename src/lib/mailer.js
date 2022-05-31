@@ -32,7 +32,7 @@ mailer.send = function (email) {
         email.cc = ''
         email.bcc = ''
       }
-throw new Error('Error before mail send');
+		// throw new Error('Error before mail send');
 
       sendResponse = await transport.sendMail(email)
 

@@ -13,10 +13,24 @@ const PROCESS_ERROR = CONST.JDE.MAIL_CONFIG.PROCESS_ERROR
 
 const DEFAULT_TEMPLATE = 'DEFAULT E ';
 
+const RETRY_LIMIT = config.app.retryLimit;
+const RETRY_PREVIOUS_DAYS = config.app.retryPreviousDays;
 
 let processStatus = 0
 
 let check = 0
+
+async function retryQueue() {
+
+  let result
+  let retryCount
+
+  result = await database.retryErrors( RETRY_LIMIT, RETRY_PREVIOUS_DAYS )
+  retryCount = result.result.rowsAffected;
+  if ( retryCount > 0 ) {
+    log.warn(`${retryCount} : Emails were found to be in Error and have been reset to retry processing.`)
+  }
+}
 
 async function checkQueue() {
 
@@ -148,3 +162,4 @@ log.info(`                                                                      
 checkQueue()
 
 setInterval(checkQueue, config.app.pollingInterval)
+setInterval(retryQueue, config.app.pollingIntervalRetry)

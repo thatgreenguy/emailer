@@ -9,6 +9,9 @@ const development = {
     systemDateSeparator: process.env.DEV_SYSTEM_DATE_SEPARATOR || '-',
     logLevel: process.env.DEV_LOG_LEVEL || 'debug',
     pollingInterval: parseInt(process.env.DEV_POLLING_INTERVAL) || 5000,
+    pollingIntervalRetry: parseInt(process.env.DEV_POLLING_INTERVAL_RETRY) || 15000,
+    retryLimit: parseInt(process.env.DEV_RETRY_LIMIT) || 10,
+    retryPreviousDays: parseInt(process.env.DEV_RETRY_PREVIOUS_DAYS) || 1,
     overrideAllRecipientsTo: process.env.DEV_OVERRIDE_ALL_RECIPIENTS_TO || '',
     tmpFolder: process.env.DEV_TMP_FOLDER || '/app/src/'
   },
@@ -46,6 +49,9 @@ const testing = {
     systemDateSeparator: process.env.TEST_SYSTEM_DATE_SEPARATOR || '-',
     logLevel: process.env.TEST_LOG_LEVEL || 'verbose',
     pollingInterval: parseInt(process.env.TEST_POLLING_INTERVAL) || 5000,
+    pollingIntervalRetry: parseInt(process.env.TEST_POLLING_INTERVAL_RETRY) || 15000,
+    retryLimit: parseInt(process.env.TEST_RETRY_LIMIT) || 10,
+    retryPreviousDays: parseInt(process.env.TEST_RETRY_PREVIOUS_DAYS) || 1,
     overrideAllRecipientsTo: process.env.TEST_OVERRIDE_ALL_RECIPIENTS_TO || '',
     tmpFolder: process.env.TEST_TMP_FOLDER || '/app/src/'
   },
@@ -82,6 +88,9 @@ const production = {
     systemDateSeparator: process.env.LIVE_SYSTEM_DATE_SEPARATOR || '-',
     logLevel: process.env.LIVE_LOG_LEVEL || 'info',
     pollingInterval: parseInt(process.env.LIVE_POLLING_INTERVAL) || 15000,
+    pollingIntervalRetry: parseInt(process.env.LIVE_POLLING_INTERVAL_RETRY) || 15000,
+    retryLimit: parseInt(process.env.LIVE_RETRY_LIMIT) || 10,
+    retryPreviousDays: parseInt(process.env.LIVE_RETRY_PREVIOUS_DAYS) || 1,
     overrideAllRecipientsTo: process.env.LIVE_OVERRIDE_ALL_RECIPIENTS_TO || '',
     tmpFolder: process.env.LIVE_TMP_FOLDER || '/app/src/' 
    },

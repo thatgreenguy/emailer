@@ -57,6 +57,50 @@ database.checkQueue =  function() {
   }) 
 }
 
+database.retryErrors = function( retryLimit, retryDaysLimit ) {
+
+  return new Promise(async function(resolve, reject) {
+
+    let dbConnection
+
+    try {
+
+      let datestamp = moment()
+      datestamp = datestamp.subtract(retryDaysLimit, 'days')
+      let julianDate = helpers.formatAsJdeJulian(datestamp)
+
+      let sql = ''
+
+      sql = `update ${SCHEMA}.F55NB901 set EC55nbes = 'R', ecedsp = ' ' 
+        where ecedsp = 'E' and ecy55edsp1 = 'B' and ecy55errc < ${retryLimit} and ecupmj >= ${julianDate}`
+
+      log.debug(`retryErrors : SQL : ${sql}`)
+
+      let binds = [ ]
+      let options = { autoCommit: true }
+
+      dbConnection = await oracledb.getConnection( credentials )
+
+      let result = await dbConnection.execute( sql, binds, options )
+
+      resolve( {result} )
+      
+    } catch ( err ) {
+      reject( err )
+
+    } finally {
+      if ( dbConnection ) {
+        try {
+          await dbConnection.close()
+
+        } catch ( err ) {
+          log.error(`CONST.MESSAGES.ERROR.CONNECTION_CLOSE_FAILED $(err)`)
+        }
+      }
+    }
+  }) 
+}
+
 database.updateQueueSending = function( id, processedFlag, errorMessage, template ) {
 
   return new Promise(async function(resolve, reject) {
