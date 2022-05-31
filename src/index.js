@@ -159,5 +159,5 @@ log.info(`                                                                      
 
 checkQueue()
 
-setInterval(checkQueue, config.app.pollingInterval)
 setInterval(retryQueue, config.app.pollingIntervalRetry)
+setInterval(checkQueue, config.app.pollingInterval)
