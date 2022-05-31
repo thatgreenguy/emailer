@@ -27,9 +27,7 @@ async function retryQueue() {
 
   result = await database.retryErrors( RETRY_LIMIT, RETRY_PREVIOUS_DAYS )
   retryCount = result.result.rowsAffected;
-  if ( retryCount > 0 ) {
-    log.warn(`${retryCount} : Emails were found to be in Error and have been reset to retry processing.`)
-  }
+  log.info(`   Retry any emails found in Error : ${retryCount} such emails found.`)
 }
 
 async function checkQueue() {
