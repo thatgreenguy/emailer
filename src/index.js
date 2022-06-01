@@ -20,6 +20,23 @@ let processStatus = 0
 
 let check = 0
 
+async function markEmailDone( id, processed, sendResponse, actualTemplate, template, errorCount, recipient, language ) {
+
+  // Error or not last action is to update the Email queue item as Processed or Errored and log error in F56CM33
+  try {
+      await database.logEmailResponse( id, processed, sendResponse, actualTemplate, errorCount);
+  } catch( err ) {
+      processed = PROCESS_ERROR
+      sendResponse = err
+      log.error(`Queued mail processing for item: ${id} failed updating log file : ${err}`)
+      
+  } finally{
+      errorCount++;
+      await database.updateQueue( id, processed, sendResponse, template, errorCount )
+      log.info( `Finished processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language} - Result:: ${sendResponse}`)
+  }
+}
+
 async function retryQueue() {
 
   let result
@@ -134,9 +151,6 @@ async function processQueue( queued ) {
         sendResponse = status.message
       }
 
-      // Error or not last action is to update the Email queue item as Processed or Errored and log error in F56CM33
-      await database.logEmailResponse( id, processed, sendResponse, actualTemplate, errorCount);
-
     } catch(err) {
 
       // If we catch an unexpected program error then mark the email as in error and feedback error text
@@ -145,11 +159,7 @@ async function processQueue( queued ) {
       log.error(`Queued mail processing for item: ${id} failed : ${err}`)
 
     } finally {
-
-      errorCount++;
-      await database.updateQueue( id, processed, sendResponse, template, errorCount )
-      log.info( `Finished processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language} - Result:: ${sendResponse}`)
-
+      await markEmailDone( id, processed, sendResponse, actualTemplate, template, errorCount, recipient, language );
     }
   }  
 }
