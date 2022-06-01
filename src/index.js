@@ -27,7 +27,7 @@ async function retryQueue() {
 
   result = await database.retryErrors( RETRY_LIMIT, RETRY_PREVIOUS_DAYS )
   retryCount = result.result.rowsAffected;
-  log.info(`   Retry any emails found in Error : ${retryCount} such emails found.`)
+  log.info(`Emailer Retry check complete, found ${retryCount}.`)
 }
 
 async function checkQueue() {
@@ -46,7 +46,7 @@ async function checkQueue() {
     
     if ( queued.length ) await processQueue( queued )  
 
-    log.info(`Emailer Queue check complete, found ${queued.length}`)  
+    log.info(`Emailer Queue check complete, found ${queued.length}.`)  
     processStatus = 0
 
   } else {
@@ -134,17 +134,18 @@ async function processQueue( queued ) {
         sendResponse = status.message
       }
 
+      // Error or not last action is to update the Email queue item as Processed or Errored and log error in F56CM33
+      await database.logEmailResponse( id, processed, sendResponse, actualTemplate, errorCount);
+
     } catch(err) {
 
       // If we catch an unexpected program error then mark the email as in error and feedback error text
-
+      processed = PROCESS_ERROR
       sendResponse = err
       log.error(`Queued mail processing for item: ${id} failed : ${err}`)
 
     } finally {
 
-      // Error or not last action is to update the Email queue item as Processed or Errored and log error in F56CM33
-      await database.logEmailResponse( id, processed, sendResponse, actualTemplate, errorCount);
       errorCount++;
       await database.updateQueue( id, processed, sendResponse, template, errorCount )
       log.info( `Finished processing queued mail item: ${id} to ${recipient} using template: ${template} in language: ${language} - Result:: ${sendResponse}`)
