@@ -479,7 +479,7 @@ database.singleOrMassRma = function(rmaType) {
     let dbConnection
 
     try {
-      let sql = `select drsphd from ${SCHEMCTL}.f0005 where drsy = '00' and drrt = 'DT' and drky = '        ${rmaType}'`
+      let sql = `select drsphd from ${SCHEMACTL}.f0005 where drsy = '00' and drrt = 'DT' and drky = '        ${rmaType}'`
       let binds = []
       let options = {}
       log.debug(`singleOrMassRma : SQL : ${sql}`)
