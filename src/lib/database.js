@@ -12,6 +12,7 @@ const credentials = {
 }
 
 const SCHEMA = config.db.schema
+const SCHEMACTL = config.db.schemactl
 const TOKEN = CONST.JDE.MAIL_CONFIG.TOKEN
 const PROCESSED = CONST.JDE.MAIL_CONFIG.PROCESSED
 const PROCESS_SENDING = CONST.JDE.MAIL_CONFIG.PROCESS_SENDING
