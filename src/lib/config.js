@@ -19,7 +19,8 @@ const development = {
     user: process.env.DEV_DB_USER,
     password: process.env.DEV_DB_PASSWORD,
     connectString: process.env.DEV_DB_CONNECTSTRING,
-    schema: process.env.DEV_DB_SCHEMA
+    schema: process.env.DEV_DB_SCHEMA,
+    schemactl: process.env.DEV_DB_SCHEMACTL
   },
   mail: {
     host: process.env.DEV_MAIL_HOST,
@@ -59,7 +60,8 @@ const testing = {
     user: process.env.TEST_DB_USER,
     password: process.env.TEST_DB_PASSWORD,
     connectString: process.env.TEST_DB_CONNECTSTRING,
-    schema: process.env.TEST_DB_SCHEMA
+    schema: process.env.TEST_DB_SCHEMA,
+    schemactl: process.env.TEST_DB_SCHEMACTL
   },
   mail: {
     host: process.env.TEST_MAIL_HOST,
@@ -98,7 +100,8 @@ const production = {
     user: process.env.LIVE_DB_USER,
     password: process.env.LIVE_DB_PASSWORD,
     connectString: process.env.LIVE_DB_CONNECTSTRING,
-    schema: process.env.LIVE_DB_SCHEMA
+    schema: process.env.LIVE_DB_SCHEMA,
+    schemactl: process.env.LIVE_DB_SCHEMACTL
   },
   mail: {
     host: process.env.LIVE_MAIL_HOST,
