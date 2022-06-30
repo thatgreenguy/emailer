@@ -53,24 +53,30 @@ async function checkQueue() {
   let result
   let queued
 
-  // If already processing no need to spawn another check just yet wait for next poll period
-  if ( processStatus == 0 ) {
+  try {
 
-    processStatus = 1
+    // If already processing no need to spawn another check just yet wait for next poll period
+    if ( processStatus == 0 ) {
 
-    result = await database.checkQueue()
-    queued = result.result.rows  
+      processStatus = 1
+
+      result = await database.checkQueue()
+      queued = result.result.rows  
     
-    if ( queued.length ) await processQueue( queued )  
+      if ( queued.length ) await processQueue( queued )  
 
-    log.info(`Emailer Queue check complete, found ${queued.length}.`)  
+      log.info(`Emailer Queue check complete, found ${queued.length}.`)  
+
+    } else {
+      log.warn(`Emailer Queue check skipped as previous one still in progress. Will try again at next Poll interval.`)  
+    }
+
+  } catch(err) {
+    log.error(`checkQueue Error: ${err}`)
+  } finally {
     processStatus = 0
-
-  } else {
-  
-    log.warn(`Emailer Queue check skipped as previous one still in progress. Will try again at next Poll interval.`)  
-
   }
+
 }
 
 async function processQueue( queued ) {

@@ -123,7 +123,7 @@ database.updateQueueSending = function( id, processedFlag, errorMessage, templat
 
       log.debug(`updateQueueSending : SQL : ${sql}`)
 
-      let binds = [ PROCESS_SENDING ]
+      let binds = [ PROCESS_ERROR ]
       let options = { autoCommit: true }
 
       dbConnection = await oracledb.getConnection( credentials )

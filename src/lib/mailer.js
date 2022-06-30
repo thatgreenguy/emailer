@@ -33,7 +33,7 @@ mailer.send = function (email) {
         email.bcc = ''
       }
 
-// throw new Error('Simulate Send Mail Error')
+
       sendResponse = await transport.sendMail(email)
 
       // The message ID is the main thing we wantt to capture and store as success message
